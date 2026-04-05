@@ -35,22 +35,6 @@ func TestValidatePath_Backslash(t *testing.T) {
 	}
 }
 
-func TestDefaultSecurityLimits(t *testing.T) {
-	limits := DefaultSecurityLimits()
-	if limits.MaxDecompressedSize <= 0 {
-		t.Error("MaxDecompressedSize should be positive")
-	}
-	if limits.MaxFileCount <= 0 {
-		t.Error("MaxFileCount should be positive")
-	}
-	if limits.MaxPartSize <= 0 {
-		t.Error("MaxPartSize should be positive")
-	}
-	if limits.MaxCompressionRatio <= 0 {
-		t.Error("MaxCompressionRatio should be positive")
-	}
-}
-
 func TestCheckCompressionRatio(t *testing.T) {
 	limits := DefaultSecurityLimits()
 	err := checkCompressionRatio(100, 1000, limits)

@@ -2,6 +2,7 @@ package xmlutil
 
 import (
 	"encoding/xml"
+	"strings"
 	"testing"
 )
 
@@ -102,17 +103,9 @@ func ExampleRawXML() {
 	_ = string(out) // Contains both <title> and <custom>
 }
 
-// helper
 func containsAll(s string, substrs ...string) bool {
 	for _, sub := range substrs {
-		found := false
-		for i := range len(s) - len(sub) + 1 {
-			if s[i:i+len(sub)] == sub {
-				found = true
-				break
-			}
-		}
-		if !found {
+		if !strings.Contains(s, sub) {
 			return false
 		}
 	}

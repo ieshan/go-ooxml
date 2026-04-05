@@ -115,6 +115,8 @@ See [docs/security.md](docs/security.md) for details.
 | [Tables](docs/docx/tables.md) | Create and manipulate tables |
 | [Formatting](docs/docx/formatting.md) | Fonts, styles, sections, page layout |
 | [Search](docs/docx/search.md) | Find, regex, and fluent batch operations |
+| [ProseMirror JSON](docs/docx/prosemirror.md) | Rich bidirectional conversion with ProseMirror/TipTap editors |
+| [Headers & Footers](docs/docx/headers-footers.md) | Add and read page headers and footers |
 
 ## Examples
 

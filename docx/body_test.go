@@ -83,11 +83,11 @@ func TestBody_AddTable(t *testing.T) {
 	}
 }
 
-func TestBody_Markdown_Stub(t *testing.T) {
+func TestBody_Markdown_Empty(t *testing.T) {
 	doc, _ := New(nil)
 	defer doc.Close()
 	if doc.Body().Markdown() != "" {
-		t.Error("Markdown() stub should return empty string")
+		t.Error("empty body Markdown() should return empty string")
 	}
 }
 

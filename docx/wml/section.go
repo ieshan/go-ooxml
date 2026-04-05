@@ -7,14 +7,23 @@ import (
 	"github.com/ieshan/go-ooxml/xmlutil"
 )
 
+// CT_HdrFtrRef represents <w:headerReference> or <w:footerReference>.
+type CT_HdrFtrRef struct {
+	XMLName xml.Name
+	Type    string // "default", "first", "even"
+	ID      string // r:id relationship reference
+}
+
 // CT_SectPr represents <w:sectPr> — section properties.
 type CT_SectPr struct {
-	XMLName xml.Name
-	PgSz    *CT_PgSz
-	PgMar   *CT_PgMar
-	Cols    *CT_Columns
-	Type    *string          // <w:type w:val="continuous"/>
-	Extra   []xmlutil.RawXML // header/footer refs, etc.
+	XMLName    xml.Name
+	HeaderRefs []CT_HdrFtrRef // <w:headerReference>
+	FooterRefs []CT_HdrFtrRef // <w:footerReference>
+	PgSz       *CT_PgSz
+	PgMar      *CT_PgMar
+	Cols       *CT_Columns
+	Type       *string          // <w:type w:val="continuous"/>
+	Extra      []xmlutil.RawXML // other preserved elements
 }
 
 // CT_PgSz represents <w:pgSz>.
@@ -76,6 +85,34 @@ func (sp *CT_SectPr) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error 
 				if err := d.DecodeElement(sp.Cols, &t); err != nil {
 					return err
 				}
+			case "headerReference":
+				ref := CT_HdrFtrRef{XMLName: t.Name}
+				for _, a := range t.Attr {
+					switch a.Name.Local {
+					case "type":
+						ref.Type = a.Value
+					case "id":
+						ref.ID = a.Value
+					}
+				}
+				if err := d.Skip(); err != nil {
+					return err
+				}
+				sp.HeaderRefs = append(sp.HeaderRefs, ref)
+			case "footerReference":
+				ref := CT_HdrFtrRef{XMLName: t.Name}
+				for _, a := range t.Attr {
+					switch a.Name.Local {
+					case "type":
+						ref.Type = a.Value
+					case "id":
+						ref.ID = a.Value
+					}
+				}
+				if err := d.Skip(); err != nil {
+					return err
+				}
+				sp.FooterRefs = append(sp.FooterRefs, ref)
 			case "type":
 				v := getAttrVal(t.Attr)
 				sp.Type = &v
@@ -105,7 +142,18 @@ func (sp *CT_SectPr) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	if err := e.EncodeToken(start); err != nil {
 		return err
 	}
-	// Emit Extra elements first (header/footer refs and other preserved elements).
+	// Per ECMA-376: headerReference*, footerReference* come first.
+	for _, ref := range sp.HeaderRefs {
+		if err := marshalHdrFtrRef(e, ref); err != nil {
+			return err
+		}
+	}
+	for _, ref := range sp.FooterRefs {
+		if err := marshalHdrFtrRef(e, ref); err != nil {
+			return err
+		}
+	}
+	// Emit other preserved elements.
 	for i := range sp.Extra {
 		if err := sp.Extra[i].MarshalXML(e, xml.StartElement{}); err != nil {
 			return err
@@ -254,6 +302,21 @@ func marshalPgMar(e *xml.Encoder, p *CT_PgMar) error {
 		if pair.val != "" {
 			s.Attr = append(s.Attr, xml.Attr{Name: xml.Name{Space: Ns, Local: pair.local}, Value: pair.val})
 		}
+	}
+	if err := e.EncodeToken(s); err != nil {
+		return err
+	}
+	return e.EncodeToken(s.End())
+}
+
+// marshalHdrFtrRef emits a <w:headerReference> or <w:footerReference> element.
+func marshalHdrFtrRef(e *xml.Encoder, ref CT_HdrFtrRef) error {
+	s := xml.StartElement{Name: ref.XMLName}
+	if ref.Type != "" {
+		s.Attr = append(s.Attr, xml.Attr{Name: xml.Name{Space: Ns, Local: "type"}, Value: ref.Type})
+	}
+	if ref.ID != "" {
+		s.Attr = append(s.Attr, xml.Attr{Name: xml.Name{Space: NsRelationships, Local: "id"}, Value: ref.ID})
 	}
 	if err := e.EncodeToken(s); err != nil {
 		return err

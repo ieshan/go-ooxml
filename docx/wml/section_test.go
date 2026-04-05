@@ -77,8 +77,8 @@ func TestCT_SectPr_TypeAndExtra(t *testing.T) {
 	if sp.Type == nil || *sp.Type != "continuous" {
 		t.Errorf("type = %v", sp.Type)
 	}
-	if len(sp.Extra) != 1 {
-		t.Errorf("extra = %d, want 1", len(sp.Extra))
+	if len(sp.HeaderRefs) != 1 {
+		t.Errorf("HeaderRefs = %d, want 1", len(sp.HeaderRefs))
 	}
 }
 
@@ -260,8 +260,8 @@ func TestCT_SectPr_MarshalXML_AllFields(t *testing.T) {
 	if sp2.Cols == nil {
 		t.Error("Cols")
 	}
-	if len(sp2.Extra) != 1 {
-		t.Errorf("Extra = %d, want 1", len(sp2.Extra))
+	if len(sp2.HeaderRefs) != 1 {
+		t.Errorf("HeaderRefs = %d, want 1", len(sp2.HeaderRefs))
 	}
 }
 
@@ -306,8 +306,7 @@ func TestCT_Columns_Sep_True_Marshal(t *testing.T) {
 	}
 }
 
-func TestCT_SectPr_Extra_RoundTrip(t *testing.T) {
-	// Extra in sectPr (e.g. headerReference) should be preserved through marshal
+func TestCT_SectPr_HdrFtrRef_RoundTrip(t *testing.T) {
 	input := `<w:sectPr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
 		<w:type w:val="nextPage"/>
 		<w:pgSz w:w="12240" w:h="15840"/>
@@ -318,10 +317,19 @@ func TestCT_SectPr_Extra_RoundTrip(t *testing.T) {
 	if err := xmlutil.Unmarshal([]byte(input), &sp); err != nil {
 		t.Fatalf("Unmarshal: %v", err)
 	}
-	if len(sp.Extra) != 2 {
-		t.Fatalf("Extra = %d, want 2", len(sp.Extra))
+	if len(sp.HeaderRefs) != 1 {
+		t.Fatalf("HeaderRefs = %d, want 1", len(sp.HeaderRefs))
 	}
-	// Marshal to exercise Extra path in CT_SectPr.MarshalXML
+	if sp.HeaderRefs[0].Type != "default" || sp.HeaderRefs[0].ID != "rId2" {
+		t.Errorf("HeaderRef = %+v", sp.HeaderRefs[0])
+	}
+	if len(sp.FooterRefs) != 1 {
+		t.Fatalf("FooterRefs = %d, want 1", len(sp.FooterRefs))
+	}
+	if sp.FooterRefs[0].Type != "default" || sp.FooterRefs[0].ID != "rId3" {
+		t.Errorf("FooterRef = %+v", sp.FooterRefs[0])
+	}
+	// Round-trip through marshal
 	data, err := xmlutil.Marshal(&sp, xmlutil.OOXML)
 	if err != nil {
 		t.Fatalf("Marshal: %v", err)
@@ -330,8 +338,11 @@ func TestCT_SectPr_Extra_RoundTrip(t *testing.T) {
 	if err := xmlutil.Unmarshal(data, &sp2); err != nil {
 		t.Fatalf("re-Unmarshal: %v", err)
 	}
-	if len(sp2.Extra) != 2 {
-		t.Errorf("Extra = %d, want 2", len(sp2.Extra))
+	if len(sp2.HeaderRefs) != 1 {
+		t.Errorf("HeaderRefs after round-trip = %d, want 1", len(sp2.HeaderRefs))
+	}
+	if len(sp2.FooterRefs) != 1 {
+		t.Errorf("FooterRefs after round-trip = %d, want 1", len(sp2.FooterRefs))
 	}
 }
 

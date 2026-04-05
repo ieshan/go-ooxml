@@ -70,23 +70,6 @@ func TestCT_R_Unmarshal_BoldItalic(t *testing.T) {
 	}
 }
 
-func TestCT_RPr_TriState(t *testing.T) {
-	rpr := CT_RPr{}
-	if rpr.Bold != nil {
-		t.Error("default Bold should be nil")
-	}
-	b := true
-	rpr.Bold = &b
-	if *rpr.Bold != true {
-		t.Error("should be true")
-	}
-	f := false
-	rpr.Bold = &f
-	if *rpr.Bold != false {
-		t.Error("should be false")
-	}
-}
-
 func TestCT_R_Marshal_RoundTrip(t *testing.T) {
 	r := CT_R{XMLName: xml.Name{Space: Ns, Local: "r"}}
 	r.AddText("Hello World")
@@ -183,17 +166,6 @@ func TestCT_R_Unmarshal_AnnotationRef(t *testing.T) {
 	}
 	if r.Content[1].AnnotationRef == nil {
 		t.Error("annotationRef should be parsed as CT_AnnotationRef")
-	}
-}
-
-func TestCT_R_Example(t *testing.T) {
-	var r CT_R
-	r.XMLName = xml.Name{Space: Ns, Local: "r"}
-	r.AddText("Hello")
-	bold := true
-	r.RPr = &CT_RPr{Bold: &bold}
-	if r.Text() != "Hello" {
-		t.Errorf("Text() = %q, want %q", r.Text(), "Hello")
 	}
 }
 

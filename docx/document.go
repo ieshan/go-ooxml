@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"path"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -18,6 +20,8 @@ const (
 	ctDocument = "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"
 	ctStyles   = "application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"
 	ctComments = "application/vnd.openxmlformats-officedocument.wordprocessingml.comments+xml"
+	ctHeader   = "application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"
+	ctFooter   = "application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"
 )
 
 // Default part paths within a DOCX package.
@@ -45,6 +49,15 @@ const (
 	ModeStreaming
 )
 
+// hdrFtrPart holds a parsed header or footer OPC part.
+type hdrFtrPart struct {
+	path  string           // OPC part path (e.g., "word/header1.xml")
+	relID string           // relationship ID (e.g., "rId7")
+	typ   HeaderFooterType // default, first, even
+	isHdr bool             // true = header, false = footer
+	body  *wml.CT_Body     // parsed content (same structure as document body)
+}
+
 // Document represents an Office Open XML word processing document (.docx).
 // Thread-safe: concurrent reads are safe; write operations acquire an exclusive lock.
 type Document struct {
@@ -55,6 +68,7 @@ type Document struct {
 	comments *wml.CT_Comments // parsed comments.xml (may be nil)
 	props    *Properties      // lazily loaded core properties (may be nil)
 	sectPr   *wml.CT_SectPr   // cached body section properties (may be nil)
+	hdrFtrs  []hdrFtrPart     // parsed header/footer parts
 	docPath  string           // path of main document part in the package
 	cfg      Config
 }
@@ -232,6 +246,39 @@ func loadDocument(pkg *opc.Package, cfg Config) (*Document, error) {
 		}
 	}
 
+	// Optionally parse header/footer parts referenced by the document part.
+	for _, rel := range docPart.Rels {
+		isHdr := rel.Type == opc.RelHeader
+		isFtr := rel.Type == opc.RelFooter
+		if !isHdr && !isFtr {
+			continue
+		}
+		partPath := resolveRelPath(docPath, rel.Target)
+		part, ok := pkg.Parts[partPath]
+		if !ok {
+			continue
+		}
+		data, err := part.Data()
+		if err != nil {
+			continue
+		}
+		// Headers/footers have a body-like structure (hdr or ftr root with paragraphs/tables).
+		// We parse them as CT_Body since the content model is identical.
+		var body wml.CT_Body
+		if xmlutil.Unmarshal(data, &body) != nil {
+			continue
+		}
+		// Determine the type (default/first/even) from the sectPr references.
+		hfType := hdrFtrTypeFromRelID(d, rel.ID, isHdr)
+		d.hdrFtrs = append(d.hdrFtrs, hdrFtrPart{
+			path:  partPath,
+			relID: rel.ID,
+			typ:   hfType,
+			isHdr: isHdr,
+			body:  &body,
+		})
+	}
+
 	// Optionally load core properties from docProps/core.xml.
 	// The relationship is package-level (not document-part-level).
 	coreRel := opc.FindRelByType(pkg.Rels, opc.RelCoreProperties)
@@ -281,6 +328,11 @@ func (d *Document) syncParts() error {
 		}
 		commentsPath := resolveRelPath(d.docPath, "comments.xml")
 		upsertPartData(d.pkg, commentsPath, ctComments, cData)
+	}
+
+	// Marshal header/footer parts.
+	if err := d.syncHdrFtrs(); err != nil {
+		return err
 	}
 
 	// Marshal docProps/core.xml if core properties have been accessed.
@@ -386,4 +438,104 @@ func collectParagraphsFromBlocks(blocks []wml.BlockLevelContent) []*wml.CT_P {
 		}
 	}
 	return result
+}
+
+// hdrFtrTypeFromRelID determines the HeaderFooterType (default/first/even) for a
+// header/footer relationship by matching its ID against the sectPr references.
+// Caller must have already set d.sectPr or d.doc.Body.SectPr.
+func hdrFtrTypeFromRelID(d *Document, relID string, isHdr bool) HeaderFooterType {
+	// Try to match against the parsed sectPr if available.
+	sp := d.sectPr
+	if sp == nil && d.doc.Body != nil && d.doc.Body.SectPr != nil && len(d.doc.Body.SectPr.Data) > 0 {
+		var parsed wml.CT_SectPr
+		if xmlutil.Unmarshal(d.doc.Body.SectPr.Data, &parsed) == nil {
+			sp = &parsed
+		}
+	}
+	if sp == nil {
+		return HdrFtrDefault
+	}
+	refs := sp.FooterRefs
+	if isHdr {
+		refs = sp.HeaderRefs
+	}
+	for _, ref := range refs {
+		if ref.ID == relID {
+			switch ref.Type {
+			case "first":
+				return HdrFtrFirst
+			case "even":
+				return HdrFtrEven
+			default:
+				return HdrFtrDefault
+			}
+		}
+	}
+	return HdrFtrDefault
+}
+
+// syncHdrFtrs marshals all header/footer parts back to the OPC package.
+// Caller must hold the write lock.
+func (d *Document) syncHdrFtrs() error {
+	for _, hf := range d.hdrFtrs {
+		if hf.body == nil {
+			continue
+		}
+		data, err := marshalHdrFtrBody(hf.body, hf.isHdr)
+		if err != nil {
+			return fmt.Errorf("docx: marshal %s: %w", hf.path, err)
+		}
+		ct := ctFooter
+		if hf.isHdr {
+			ct = ctHeader
+		}
+		upsertPartData(d.pkg, hf.path, ct, data)
+	}
+	return nil
+}
+
+// marshalHdrFtrBody marshals a header/footer body as XML with the appropriate
+// root element (hdr or ftr).
+func marshalHdrFtrBody(body *wml.CT_Body, isHdr bool) ([]byte, error) {
+	// Header/footer XML uses <w:hdr> or <w:ftr> as root, which has the same
+	// content model as <w:body>. We temporarily rename the XMLName for marshaling.
+	local := "ftr"
+	if isHdr {
+		local = "hdr"
+	}
+	saved := body.XMLName
+	body.XMLName = xml.Name{Space: wml.Ns, Local: local}
+	data, err := xmlutil.Marshal(body, xmlutil.OOXML)
+	body.XMLName = saved
+	if err != nil {
+		return nil, err
+	}
+	return xmlutil.AddXMLHeader(data), nil
+}
+
+// nextHdrFtrNum returns the next available header/footer part number by
+// scanning existing part paths to avoid collisions with pre-existing files.
+// Caller must hold the write lock.
+func (d *Document) nextHdrFtrNum(isHdr bool) int {
+	prefix := "footer"
+	if isHdr {
+		prefix = "header"
+	}
+	max := 0
+	for _, hf := range d.hdrFtrs {
+		if hf.isHdr != isHdr {
+			continue
+		}
+		// Extract number from path like "word/header2.xml".
+		base := hf.path
+		if idx := strings.LastIndex(base, "/"); idx >= 0 {
+			base = base[idx+1:]
+		}
+		base = strings.TrimPrefix(base, prefix)
+		base = strings.TrimSuffix(base, ".xml")
+		if n, err := strconv.Atoi(base); err == nil && n > max {
+			max = n
+		}
+	}
+	return max + 1
 }

@@ -98,7 +98,7 @@ func TestTable_Text(t *testing.T) {
 	tbl.Cell(1, 1).AddParagraph().AddRun("d")
 	text := tbl.Text()
 	for _, s := range []string{"a", "b", "c", "d"} {
-		if !containsSubstring(text, s) {
+		if !strings.Contains(text, s) {
 			t.Errorf("text missing %q: %q", s, text)
 		}
 	}
@@ -178,11 +178,6 @@ func TestTable_Cell_OutOfBounds(t *testing.T) {
 	if tbl.Cell(5, 0) != nil {
 		t.Error("expected nil for out-of-bounds row")
 	}
-}
-
-// helper used in TestTable_Text
-func containsSubstring(s, sub string) bool {
-	return strings.Contains(s, sub)
 }
 
 func ExampleBody_AddTable() {

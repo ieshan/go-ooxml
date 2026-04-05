@@ -30,3 +30,4 @@ Then open the generated `.docx` files in Microsoft Word, LibreOffice, or Google 
 | [formatting](docx/formatting/) | Bold, italic, fonts, styles, alignment | `cd examples/docx/formatting && go run main.go` |
 | [search](docx/search/) | Find, regex, replace, batch operations | `cd examples/docx/search && go run main.go` |
 | [sections](docx/sections/) | Page layout, margins, columns, orientation | `cd examples/docx/sections && go run main.go` |
+| [prosemirror](docx/prosemirror/) | Export and import ProseMirror JSON | `cd examples/docx/prosemirror && go run main.go` |

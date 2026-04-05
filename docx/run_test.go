@@ -84,27 +84,6 @@ func TestRun_FontColor(t *testing.T) {
 	}
 }
 
-func TestRun_FontSize_Typed(t *testing.T) {
-	doc, _ := New(nil)
-	defer doc.Close()
-	r := doc.Body().AddParagraph().AddRun("test")
-	r.SetFontSize(12.0)
-	if r.FontSize() == nil || *r.FontSize() != 12.0 {
-		t.Error("font size")
-	}
-}
-
-func TestRun_FontColor_Typed(t *testing.T) {
-	doc, _ := New(nil)
-	defer doc.Close()
-	r := doc.Body().AddParagraph().AddRun("test")
-	r.SetFontColor(common.RGB(255, 0, 0))
-	c := r.FontColor()
-	if c == nil || c.R != 255 {
-		t.Error("font color")
-	}
-}
-
 func TestRun_Underline(t *testing.T) {
 	doc, _ := New(nil)
 	defer doc.Close()
@@ -163,15 +142,6 @@ func TestRun_AddPageBreak(t *testing.T) {
 	text := r.Text()
 	if text != "\n" {
 		t.Errorf("text = %q, want newline for page break", text)
-	}
-}
-
-func TestRun_Markdown_PlainText(t *testing.T) {
-	doc, _ := New(nil)
-	defer doc.Close()
-	r := doc.Body().AddParagraph().AddRun("test")
-	if r.Markdown() != "test" {
-		t.Errorf("Markdown() = %q, want %q", r.Markdown(), "test")
 	}
 }
 

@@ -54,12 +54,12 @@ func TestParagraph_Style(t *testing.T) {
 	}
 }
 
-func TestParagraph_Markdown_Stub(t *testing.T) {
+func TestParagraph_Markdown_Empty(t *testing.T) {
 	doc, _ := New(nil)
 	defer doc.Close()
 	p := doc.Body().AddParagraph()
 	if p.Markdown() != "" {
-		t.Error("Markdown() stub should return empty string")
+		t.Error("empty paragraph Markdown() should return empty string")
 	}
 }
 
