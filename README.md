@@ -128,4 +128,4 @@ See [examples/README.md](examples/README.md) for the full list.
 
 ## License
 
-TBD
+[LGPL - GNU Lesser General Public License](LICENSE)
