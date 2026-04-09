@@ -318,9 +318,3 @@ func (s *Section) SetBreakType(b SectionBreak) {
 	s.el.Type = &v
 	// Cached sectPr is written back to body during syncParts/save
 }
-
-// Text returns an empty string (stub — sections do not directly contain text).
-func (s *Section) Text() string { return "" }
-
-// Markdown returns an empty string (stub).
-func (s *Section) Markdown() string { return "" }

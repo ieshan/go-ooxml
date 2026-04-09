@@ -55,6 +55,7 @@ type CT_RPr struct {
 	FontEastAsia *string          // <w:rFonts w:eastAsia="..."/>
 	FontCS       *string          // <w:rFonts w:cs="..."/>
 	FontSize     *string          // <w:sz w:val="24"/> (half-points)
+	FontSizeCS   *string          // <w:szCs w:val="24"/> (half-points, complex script)
 	Color        *string          // <w:color w:val="FF0000"/>
 	ThemeColor   *string          // <w:color w:themeColor="..."/>
 	ThemeShade   *string          // <w:color w:themeShade="..."/>
@@ -339,6 +340,14 @@ func (rpr *CT_RPr) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 				if err := d.Skip(); err != nil {
 					return err
 				}
+			case "szCs":
+				v := getAttrVal(t.Attr)
+				if v != "" {
+					rpr.FontSizeCS = &v
+				}
+				if err := d.Skip(); err != nil {
+					return err
+				}
 			case "color":
 				if v := getAttrVal(t.Attr); v != "" {
 					rpr.Color = &v
@@ -407,6 +416,9 @@ func (rpr *CT_RPr) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 		return err
 	}
 	if err := marshalValAttr(e, "sz", rpr.FontSize); err != nil {
+		return err
+	}
+	if err := marshalValAttr(e, "szCs", rpr.FontSizeCS); err != nil {
 		return err
 	}
 
@@ -498,6 +510,15 @@ func marshalValAttr(e *xml.Encoder, local string, val *string) error {
 		Name: xml.Name{Space: Ns, Local: local},
 		Attr: []xml.Attr{{Name: xml.Name{Space: Ns, Local: "val"}, Value: *val}},
 	}
+	if err := e.EncodeToken(s); err != nil {
+		return err
+	}
+	return e.EncodeToken(s.End())
+}
+
+// marshalEmptyElement writes an empty element like <w:keepNext/>.
+func marshalEmptyElement(e *xml.Encoder, local string) error {
+	s := xml.StartElement{Name: xml.Name{Space: Ns, Local: local}}
 	if err := e.EncodeToken(s); err != nil {
 		return err
 	}

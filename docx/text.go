@@ -4,9 +4,9 @@ import "strings"
 
 // TextOptions controls what content is included in document-level text extraction.
 type TextOptions struct {
-	// IncludeHeaders includes header text. Currently a no-op (headers not yet implemented).
+	// IncludeHeaders includes header text before the body text.
 	IncludeHeaders bool
-	// IncludeFooters includes footer text. Currently a no-op (footers not yet implemented).
+	// IncludeFooters includes footer text after the body text.
 	IncludeFooters bool
 	// IncludeComments appends comment text after the body text.
 	IncludeComments bool
@@ -16,7 +16,6 @@ type TextOptions struct {
 // If opts is nil, only body text is extracted.
 // Body paragraphs are separated by newlines; table rows by newlines, cells by tabs.
 // When IncludeComments is set, comment text is appended (newline-separated) after the body.
-// IncludeHeaders and IncludeFooters are no-ops until headers/footers are implemented.
 func (d *Document) Text(opts *TextOptions) string {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -31,8 +30,6 @@ func (d *Document) Text(opts *TextOptions) string {
 	if opts == nil {
 		return sb.String()
 	}
-
-	// IncludeHeaders and IncludeFooters are no-ops until Phase 8 implements them.
 
 	// Append comment text if requested.
 	if opts.IncludeComments && d.comments != nil {

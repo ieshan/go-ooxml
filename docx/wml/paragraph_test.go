@@ -280,8 +280,12 @@ func TestCT_PPr_ExtraPreserved(t *testing.T) {
 	if p.PPr == nil {
 		t.Fatal("pPr nil")
 	}
-	if len(p.PPr.Extra) != 1 {
-		t.Errorf("Extra = %d, want 1 (spacing)", len(p.PPr.Extra))
+	// spacing is now parsed explicitly, not stored in Extra
+	if p.PPr.Spacing == nil {
+		t.Error("spacing should be parsed")
+	}
+	if p.PPr.Spacing != nil && (p.PPr.Spacing.After == nil || *p.PPr.Spacing.After != "200") {
+		t.Errorf("spacing after = %v, want 200", p.PPr.Spacing.After)
 	}
 }
 
@@ -545,8 +549,9 @@ func TestCT_PPr_Marshal_WithExtra(t *testing.T) {
 	if p2.PPr.Alignment == nil || *p2.PPr.Alignment != "center" {
 		t.Error("Alignment")
 	}
-	if len(p2.PPr.Extra) != 1 {
-		t.Errorf("Extra = %d, want 1", len(p2.PPr.Extra))
+	// spacing is now parsed explicitly, not stored in Extra
+	if p2.PPr.Spacing == nil || p2.PPr.Spacing.After == nil || *p2.PPr.Spacing.After != "200" {
+		t.Error("spacing after not preserved")
 	}
 }
 
@@ -620,5 +625,55 @@ func TestCT_RunTrackChange_Raw_RoundTrip(t *testing.T) {
 	}
 	if len(p2.Content[0].Del.Raw) != 1 {
 		t.Errorf("del.Raw = %d, want 1", len(p2.Content[0].Del.Raw))
+	}
+}
+
+func TestCT_PPr_SpacingAndIndent_RoundTrip(t *testing.T) {
+	before := "240"
+	after := "0"
+	line := "259"
+	lineRule := "auto"
+	left := "720"
+	right := "720"
+	outlineLvl := 0
+	keepNext := true
+	keepLines := true
+
+	ppr := CT_PPr{
+		XMLName:    xml.Name{Space: Ns, Local: "pPr"},
+		KeepNext:   &keepNext,
+		KeepLines:  &keepLines,
+		Spacing:    &CT_Spacing{Before: &before, After: &after, Line: &line, LineRule: &lineRule},
+		Ind:        &CT_Ind{Left: &left, Right: &right},
+		OutlineLvl: &outlineLvl,
+	}
+
+	data, err := xmlutil.Marshal(&ppr, xmlutil.OOXML)
+	if err != nil {
+		t.Fatalf("Marshal: %v", err)
+	}
+
+	var ppr2 CT_PPr
+	if err := xmlutil.Unmarshal(data, &ppr2); err != nil {
+		t.Fatalf("Unmarshal: %v", err)
+	}
+
+	if ppr2.KeepNext == nil || !*ppr2.KeepNext {
+		t.Error("keepNext not preserved")
+	}
+	if ppr2.KeepLines == nil || !*ppr2.KeepLines {
+		t.Error("keepLines not preserved")
+	}
+	if ppr2.Spacing == nil || ppr2.Spacing.Before == nil || *ppr2.Spacing.Before != "240" {
+		t.Error("spacing before not preserved")
+	}
+	if ppr2.Spacing.After == nil || *ppr2.Spacing.After != "0" {
+		t.Error("spacing after not preserved")
+	}
+	if ppr2.Ind == nil || ppr2.Ind.Left == nil || *ppr2.Ind.Left != "720" {
+		t.Error("indent left not preserved")
+	}
+	if ppr2.OutlineLvl == nil || *ppr2.OutlineLvl != 0 {
+		t.Errorf("outlineLvl = %v, want 0", ppr2.OutlineLvl)
 	}
 }

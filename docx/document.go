@@ -102,12 +102,14 @@ func New(cfg *Config) (*Document, error) {
 	}
 	pkg.AddPart(partDocument, ctDocument, docData)
 
-	return &Document{
+	d := &Document{
 		pkg:     pkg,
 		doc:     doc,
 		docPath: partDocument,
 		cfg:     c,
-	}, nil
+	}
+	d.initDefaultStyles()
+	return d, nil
 }
 
 // Open opens a DOCX file from the given path.
@@ -318,6 +320,20 @@ func (d *Document) syncParts() error {
 		}
 		stylesPath := resolveRelPath(d.docPath, "styles.xml")
 		upsertPartData(d.pkg, stylesPath, ctStyles, sData)
+
+		// Ensure part-level relationship exists.
+		if docPart, ok := d.pkg.Parts[d.docPath]; ok {
+			if opc.FindRelByType(docPart.Rels, opc.RelStyles) == nil {
+				docPart.Rels = append(docPart.Rels, opc.Relationship{
+					ID:     opc.NextRelID(docPart.Rels),
+					Type:   opc.RelStyles,
+					Target: "styles.xml",
+				})
+			}
+		}
+
+		// Ensure content type override.
+		d.pkg.ContentTypes.Overrides["/"+stylesPath] = ctStyles
 	}
 
 	// Marshal comments.xml if present.
@@ -521,7 +537,7 @@ func (d *Document) nextHdrFtrNum(isHdr bool) int {
 	if isHdr {
 		prefix = "header"
 	}
-	max := 0
+	maxVal := 0
 	for _, hf := range d.hdrFtrs {
 		if hf.isHdr != isHdr {
 			continue
@@ -533,9 +549,9 @@ func (d *Document) nextHdrFtrNum(isHdr bool) int {
 		}
 		base = strings.TrimPrefix(base, prefix)
 		base = strings.TrimSuffix(base, ".xml")
-		if n, err := strconv.Atoi(base); err == nil && n > max {
-			max = n
+		if n, err := strconv.Atoi(base); err == nil && n > maxVal {
+			maxVal = n
 		}
 	}
-	return max + 1
+	return maxVal + 1
 }

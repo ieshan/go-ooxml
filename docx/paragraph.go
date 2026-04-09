@@ -67,7 +67,9 @@ func (p *Paragraph) Style() string {
 	return ""
 }
 
-// SetStyle sets the paragraph style name.
+// SetStyle sets the paragraph style name. If the style ID matches a known
+// built-in style and no definition exists in the document, the definition is
+// auto-created to ensure Word renders the style correctly.
 func (p *Paragraph) SetStyle(name string) {
 	p.doc.mu.Lock()
 	defer p.doc.mu.Unlock()
@@ -78,6 +80,7 @@ func (p *Paragraph) SetStyle(name string) {
 		}
 	}
 	p.el.PPr.Style = &name
+	p.doc.ensureStyleExists(name)
 }
 
 // Format returns the paragraph formatting properties, creating the pPr element

@@ -21,6 +21,7 @@ type CT_Style struct {
 	Default *bool   // w:default attr
 	Name    string  // <w:name w:val="..."/>
 	BasedOn *string // <w:basedOn w:val="..."/>
+	Next    *string // <w:next w:val="..."/>
 	PPr     *CT_PPr // paragraph properties
 	RPr     *CT_RPr // run properties
 	Extra   []xmlutil.RawXML
@@ -111,6 +112,12 @@ func (s *CT_Style) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 				if err := d.Skip(); err != nil {
 					return err
 				}
+			case "next":
+				v := getAttrVal(t.Attr)
+				s.Next = &v
+				if err := d.Skip(); err != nil {
+					return err
+				}
 			case "pPr":
 				s.PPr = &CT_PPr{}
 				if err := d.DecodeElement(s.PPr, &t); err != nil {
@@ -165,6 +172,9 @@ func (s *CT_Style) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 		}
 	}
 	if err := marshalValAttr(e, "basedOn", s.BasedOn); err != nil {
+		return err
+	}
+	if err := marshalValAttr(e, "next", s.Next); err != nil {
 		return err
 	}
 	if s.PPr != nil {

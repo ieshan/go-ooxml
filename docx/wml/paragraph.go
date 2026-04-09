@@ -55,17 +55,36 @@ type CT_RunTrackChange struct {
 
 // CT_PPr represents <w:pPr> — paragraph properties
 type CT_PPr struct {
-	XMLName   xml.Name
-	Style     *string // <w:pStyle w:val="..."/>
-	Alignment *string // <w:jc w:val="center"/>
-	NumPr     *CT_NumPr
-	Extra     []xmlutil.RawXML
+	XMLName    xml.Name
+	Style      *string     // <w:pStyle w:val="..."/>
+	KeepNext   *bool       // <w:keepNext/>
+	KeepLines  *bool       // <w:keepLines/>
+	Spacing    *CT_Spacing // <w:spacing .../>
+	Ind        *CT_Ind     // <w:ind .../>
+	Alignment  *string     // <w:jc w:val="center"/>
+	OutlineLvl *int        // <w:outlineLvl w:val="0"/>
+	NumPr      *CT_NumPr
+	Extra      []xmlutil.RawXML
 }
 
 // CT_NumPr represents <w:numPr> — numbering properties
 type CT_NumPr struct {
 	ILvl  *int // <w:ilvl w:val="0"/>
 	NumID *int // <w:numId w:val="1"/>
+}
+
+// CT_Spacing represents <w:spacing> — paragraph spacing properties.
+type CT_Spacing struct {
+	Before   *string // w:before (twips)
+	After    *string // w:after (twips)
+	Line     *string // w:line
+	LineRule *string // w:lineRule ("auto", "exact", "atLeast")
+}
+
+// CT_Ind represents <w:ind> — paragraph indentation.
+type CT_Ind struct {
+	Left  *string // w:left (twips)
+	Right *string // w:right (twips)
 }
 
 // Text concatenates visible text from all runs (including inside ins/hyperlink).
@@ -263,10 +282,67 @@ func (ppr *CT_PPr) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 				if err := d.Skip(); err != nil {
 					return err
 				}
+			case "keepNext":
+				v := true
+				ppr.KeepNext = &v
+				if err := d.Skip(); err != nil {
+					return err
+				}
+			case "keepLines":
+				v := true
+				ppr.KeepLines = &v
+				if err := d.Skip(); err != nil {
+					return err
+				}
+			case "spacing":
+				ppr.Spacing = &CT_Spacing{}
+				for _, a := range t.Attr {
+					switch a.Name.Local {
+					case "before":
+						v := a.Value
+						ppr.Spacing.Before = &v
+					case "after":
+						v := a.Value
+						ppr.Spacing.After = &v
+					case "line":
+						v := a.Value
+						ppr.Spacing.Line = &v
+					case "lineRule":
+						v := a.Value
+						ppr.Spacing.LineRule = &v
+					}
+				}
+				if err := d.Skip(); err != nil {
+					return err
+				}
+			case "ind":
+				ppr.Ind = &CT_Ind{}
+				for _, a := range t.Attr {
+					switch a.Name.Local {
+					case "left":
+						v := a.Value
+						ppr.Ind.Left = &v
+					case "right":
+						v := a.Value
+						ppr.Ind.Right = &v
+					}
+				}
+				if err := d.Skip(); err != nil {
+					return err
+				}
 			case "jc":
 				v := getAttrVal(t.Attr)
 				if v != "" {
 					ppr.Alignment = &v
+				}
+				if err := d.Skip(); err != nil {
+					return err
+				}
+			case "outlineLvl":
+				v := getAttrVal(t.Attr)
+				if v != "" {
+					n, _ := strconv.Atoi(v)
+					ppr.OutlineLvl = &n
 				}
 				if err := d.Skip(); err != nil {
 					return err
@@ -298,8 +374,60 @@ func (ppr *CT_PPr) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	if err := marshalValAttr(e, "pStyle", ppr.Style); err != nil {
 		return err
 	}
+	if ppr.KeepNext != nil && *ppr.KeepNext {
+		if err := marshalEmptyElement(e, "keepNext"); err != nil {
+			return err
+		}
+	}
+	if ppr.KeepLines != nil && *ppr.KeepLines {
+		if err := marshalEmptyElement(e, "keepLines"); err != nil {
+			return err
+		}
+	}
+	if ppr.Spacing != nil {
+		sp := xml.StartElement{Name: xml.Name{Space: Ns, Local: "spacing"}}
+		if ppr.Spacing.Before != nil {
+			sp.Attr = append(sp.Attr, xml.Attr{Name: xml.Name{Space: Ns, Local: "before"}, Value: *ppr.Spacing.Before})
+		}
+		if ppr.Spacing.After != nil {
+			sp.Attr = append(sp.Attr, xml.Attr{Name: xml.Name{Space: Ns, Local: "after"}, Value: *ppr.Spacing.After})
+		}
+		if ppr.Spacing.Line != nil {
+			sp.Attr = append(sp.Attr, xml.Attr{Name: xml.Name{Space: Ns, Local: "line"}, Value: *ppr.Spacing.Line})
+		}
+		if ppr.Spacing.LineRule != nil {
+			sp.Attr = append(sp.Attr, xml.Attr{Name: xml.Name{Space: Ns, Local: "lineRule"}, Value: *ppr.Spacing.LineRule})
+		}
+		if err := e.EncodeToken(sp); err != nil {
+			return err
+		}
+		if err := e.EncodeToken(sp.End()); err != nil {
+			return err
+		}
+	}
+	if ppr.Ind != nil {
+		ind := xml.StartElement{Name: xml.Name{Space: Ns, Local: "ind"}}
+		if ppr.Ind.Left != nil {
+			ind.Attr = append(ind.Attr, xml.Attr{Name: xml.Name{Space: Ns, Local: "left"}, Value: *ppr.Ind.Left})
+		}
+		if ppr.Ind.Right != nil {
+			ind.Attr = append(ind.Attr, xml.Attr{Name: xml.Name{Space: Ns, Local: "right"}, Value: *ppr.Ind.Right})
+		}
+		if err := e.EncodeToken(ind); err != nil {
+			return err
+		}
+		if err := e.EncodeToken(ind.End()); err != nil {
+			return err
+		}
+	}
 	if err := marshalValAttr(e, "jc", ppr.Alignment); err != nil {
 		return err
+	}
+	if ppr.OutlineLvl != nil {
+		v := strconv.Itoa(*ppr.OutlineLvl)
+		if err := marshalValAttr(e, "outlineLvl", &v); err != nil {
+			return err
+		}
 	}
 	if ppr.NumPr != nil {
 		numStart := xml.StartElement{Name: xml.Name{Space: Ns, Local: "numPr"}}

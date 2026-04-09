@@ -122,7 +122,9 @@ func WithInitials(initials string) CommentOption {
 	}
 }
 
-// WithMarkdown is a stub option for future markdown support.
+// WithMarkdown enables inline Markdown formatting (bold, italic, code) in the
+// comment body text. When set, the comment text is parsed for Markdown syntax
+// and the corresponding OOXML run properties are applied.
 func WithMarkdown() CommentOption {
 	return func(c *commentConfig) {
 		c.markdown = true

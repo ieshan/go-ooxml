@@ -14,16 +14,10 @@ const (
 	RelOfficeDocument = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"
 	RelStyles         = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles"
 	RelComments       = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments"
-	RelSettings       = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings"
-	RelNumbering      = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering"
-	RelFontTable      = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable"
-	RelImage          = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"
 	RelHyperlink      = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink"
 	RelHeader         = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/header"
 	RelFooter         = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer"
-	RelTheme          = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme"
 	RelCoreProperties = "http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties"
-	RelAppProperties  = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties"
 )
 
 // Relationship represents a single OPC relationship entry.
@@ -95,16 +89,16 @@ func MarshalRelationships(rels []Relationship) ([]byte, error) {
 // the form "rId<N>" and returns the next ID (e.g. "rId4" when the max is 3).
 // If no such IDs exist, it returns "rId1".
 func NextRelID(rels []Relationship) string {
-	max := 0
+	maxVal := 0
 	for _, r := range rels {
 		if strings.HasPrefix(r.ID, "rId") {
 			n, err := strconv.Atoi(r.ID[3:])
-			if err == nil && n > max {
-				max = n
+			if err == nil && n > maxVal {
+				maxVal = n
 			}
 		}
 	}
-	return fmt.Sprintf("rId%d", max+1)
+	return fmt.Sprintf("rId%d", maxVal+1)
 }
 
 // FindRelByType returns the first Relationship with the given type URI, or nil

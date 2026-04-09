@@ -6,16 +6,6 @@ type ListFormat int
 const (
 	// ListBullet is the default list format (unordered / bulleted).
 	ListBullet ListFormat = iota
-	// ListDecimal is a decimal-numbered list (1, 2, 3…).
-	ListDecimal
-	// ListLowerAlpha is a lower-case alphabetic list (a, b, c…).
-	ListLowerAlpha
-	// ListUpperAlpha is an upper-case alphabetic list (A, B, C…).
-	ListUpperAlpha
-	// ListLowerRoman is a lower-case Roman numeral list (i, ii, iii…).
-	ListLowerRoman
-	// ListUpperRoman is an upper-case Roman numeral list (I, II, III…).
-	ListUpperRoman
 )
 
 // ListInfo holds list item metadata read from a paragraph's numbering properties.

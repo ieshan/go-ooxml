@@ -124,19 +124,6 @@ func TestSection_BreakType(t *testing.T) {
 	}
 }
 
-func TestSection_Text_Markdown_Stubs(t *testing.T) {
-	doc, _ := New(nil)
-	defer doc.Close()
-	for s := range doc.Sections() {
-		if s.Text() != "" {
-			t.Errorf("Text() = %q, want empty", s.Text())
-		}
-		if s.Markdown() != "" {
-			t.Errorf("Markdown() = %q, want empty", s.Markdown())
-		}
-	}
-}
-
 func ExampleSection_SetColumns() {
 	doc, _ := New(nil)
 	defer doc.Close()

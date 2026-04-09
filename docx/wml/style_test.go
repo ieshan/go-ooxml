@@ -2,6 +2,7 @@ package wml
 
 import (
 	"encoding/xml"
+	"strings"
 	"testing"
 
 	"github.com/ieshan/go-ooxml/xmlutil"
@@ -339,5 +340,32 @@ func TestCT_Styles_MarshalXML_WithExtra(t *testing.T) {
 	}
 	if len(styles2.Styles) != 1 {
 		t.Errorf("Styles = %d, want 1", len(styles2.Styles))
+	}
+}
+
+func TestCT_Style_Next_RoundTrip(t *testing.T) {
+	next := "Normal"
+	style := CT_Style{
+		XMLName: xml.Name{Space: Ns, Local: "style"},
+		Type:    "paragraph",
+		StyleID: "Heading1",
+		Name:    "heading 1",
+		Next:    &next,
+	}
+
+	data, err := xmlutil.Marshal(&style, xmlutil.OOXML)
+	if err != nil {
+		t.Fatalf("Marshal: %v", err)
+	}
+	if !strings.Contains(string(data), "next") {
+		t.Errorf("XML should contain next element: %s", data)
+	}
+
+	var style2 CT_Style
+	if err := xmlutil.Unmarshal(data, &style2); err != nil {
+		t.Fatalf("Unmarshal: %v", err)
+	}
+	if style2.Next == nil || *style2.Next != "Normal" {
+		t.Errorf("Next = %v, want Normal", style2.Next)
 	}
 }

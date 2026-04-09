@@ -82,6 +82,15 @@ func (b *Body) AddTable(rows, cols int) *Table {
 	return &Table{doc: b.doc, el: tbl}
 }
 
+// Clear removes all block-level content (paragraphs, tables, and unknown
+// elements) from the body. Section properties (page size, margins, orientation)
+// are preserved.
+func (b *Body) Clear() {
+	b.doc.mu.Lock()
+	defer b.doc.mu.Unlock()
+	b.el.Content = nil
+}
+
 // Text concatenates the text of all block-level content (paragraphs and tables),
 // separated by newlines. Table rows are newline-separated; cells within a row are tab-separated.
 func (b *Body) Text() string {
