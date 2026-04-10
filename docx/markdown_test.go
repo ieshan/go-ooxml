@@ -9,8 +9,7 @@ func TestRun_Markdown_Bold(t *testing.T) {
 	doc, _ := New(nil)
 	defer doc.Close()
 	r := doc.Body().AddParagraph().AddRun("bold")
-	bold := true
-	r.SetBold(&bold)
+	r.SetBold(new(true))
 	if r.Markdown() != "**bold**" {
 		t.Errorf("md = %q", r.Markdown())
 	}
@@ -20,8 +19,7 @@ func TestRun_Markdown_Italic(t *testing.T) {
 	doc, _ := New(nil)
 	defer doc.Close()
 	r := doc.Body().AddParagraph().AddRun("italic")
-	it := true
-	r.SetItalic(&it)
+	r.SetItalic(new(true))
 	if r.Markdown() != "*italic*" {
 		t.Errorf("md = %q", r.Markdown())
 	}
@@ -43,8 +41,7 @@ func TestRun_Markdown_Strikethrough(t *testing.T) {
 	doc, _ := New(nil)
 	defer doc.Close()
 	r := doc.Body().AddParagraph().AddRun("struck")
-	s := true
-	r.SetStrikethrough(&s)
+	r.SetStrikethrough(new(true))
 	if r.Markdown() != "~~struck~~" {
 		t.Errorf("md = %q", r.Markdown())
 	}
@@ -73,8 +70,7 @@ func TestRun_Markdown_EmptyText(t *testing.T) {
 	doc, _ := New(nil)
 	defer doc.Close()
 	r := doc.Body().AddParagraph().AddRun("")
-	b := true
-	r.SetBold(&b)
+	r.SetBold(new(true))
 	if r.Markdown() != "" {
 		t.Errorf("md = %q, want empty", r.Markdown())
 	}
@@ -119,8 +115,7 @@ func TestParagraph_Markdown_Mixed(t *testing.T) {
 	p := doc.Body().AddParagraph()
 	p.AddRun("Hello ")
 	r := p.AddRun("World")
-	b := true
-	r.SetBold(&b)
+	r.SetBold(new(true))
 	if p.Markdown() != "Hello **World**" {
 		t.Errorf("md = %q", p.Markdown())
 	}

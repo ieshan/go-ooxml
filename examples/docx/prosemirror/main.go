@@ -29,13 +29,11 @@ func main() {
 
 	p := doc.Body().AddParagraph()
 	p.AddRun("This is ")
-	bold := true
 	r := p.AddRun("bold")
-	r.SetBold(&bold)
+	r.SetBold(new(true))
 	p.AddRun(" and ")
-	italic := true
 	r2 := p.AddRun("italic")
-	r2.SetItalic(&italic)
+	r2.SetItalic(new(true))
 	p.AddRun(" and ")
 	r3 := p.AddRun("colored")
 	r3.SetFontColor(common.RGB(255, 0, 0))

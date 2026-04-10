@@ -50,8 +50,7 @@ func main() {
 	fmt.Printf("\nReplaced %d occurrences of 'ACME Widget'\n", count)
 
 	// --- Batch Formatting ---
-	bold := true
-	n := doc.Search("TODO").SetBold(&bold)
+	n := doc.Search("TODO").SetBold(new(true))
 	fmt.Printf("Made %d 'TODO' runs bold\n", n)
 
 	// --- Add Comments to Matches ---
@@ -62,8 +61,7 @@ func main() {
 
 	// --- Format-Preserving Replace ---
 	// Make "SuperWidget Pro" bold, then replace while preserving bold.
-	boldTrue := true
-	doc.Search("SuperWidget Pro").SetBold(&boldTrue)
+	doc.Search("SuperWidget Pro").SetBold(new(true))
 	n2 := doc.Search("SuperWidget Pro").ReplaceTextFormatted("MegaWidget")
 	fmt.Printf("Format-preserving replace: %d occurrences (bold preserved)\n", n2)
 

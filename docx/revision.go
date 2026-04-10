@@ -30,16 +30,22 @@ type Revision struct {
 
 // ID returns the revision identifier.
 func (r *Revision) ID() int {
+	r.doc.mu.RLock()
+	defer r.doc.mu.RUnlock()
 	return r.el.ID
 }
 
 // Author returns the author who made the change.
 func (r *Revision) Author() string {
+	r.doc.mu.RLock()
+	defer r.doc.mu.RUnlock()
 	return r.el.Author
 }
 
 // Date returns the date of the revision. Returns zero time if not set or unparseable.
 func (r *Revision) Date() time.Time {
+	r.doc.mu.RLock()
+	defer r.doc.mu.RUnlock()
 	if r.el.Date == "" {
 		return time.Time{}
 	}
@@ -52,11 +58,15 @@ func (r *Revision) Date() time.Time {
 
 // Type returns the revision type (insert, delete, or format change).
 func (r *Revision) Type() RevisionType {
+	r.doc.mu.RLock()
+	defer r.doc.mu.RUnlock()
 	return r.typ
 }
 
 // OriginalText returns the deleted text for delete revisions; empty for inserts.
 func (r *Revision) OriginalText() string {
+	r.doc.mu.RLock()
+	defer r.doc.mu.RUnlock()
 	if r.typ != RevisionDelete {
 		return ""
 	}
@@ -69,6 +79,8 @@ func (r *Revision) OriginalText() string {
 
 // ProposedText returns the inserted text for insert revisions; empty for deletes.
 func (r *Revision) ProposedText() string {
+	r.doc.mu.RLock()
+	defer r.doc.mu.RUnlock()
 	if r.typ != RevisionInsert {
 		return ""
 	}
@@ -83,6 +95,8 @@ func (r *Revision) ProposedText() string {
 // Markdown (with bold/italic/code decoration). Returns empty string for
 // insert revisions.
 func (r *Revision) OriginalMarkdown() string {
+	r.doc.mu.RLock()
+	defer r.doc.mu.RUnlock()
 	if r.typ != RevisionDelete {
 		return ""
 	}
@@ -97,6 +111,8 @@ func (r *Revision) OriginalMarkdown() string {
 // Markdown (with bold/italic/code decoration). Returns empty string for delete
 // revisions.
 func (r *Revision) ProposedMarkdown() string {
+	r.doc.mu.RLock()
+	defer r.doc.mu.RUnlock()
 	if r.typ != RevisionInsert {
 		return ""
 	}
@@ -131,7 +147,8 @@ func WithRevisionDate(date time.Time) RevisionOption {
 	}
 }
 
-// WithMarkdownRevision is a stub option for markdown-aware revisions.
+// WithMarkdownRevision enables inline Markdown formatting (bold, italic,
+// strikethrough, code) in the revision's proposed text.
 func WithMarkdownRevision() RevisionOption {
 	return func(c *revisionConfig) {
 		c.markdown = true
@@ -279,20 +296,16 @@ func (d *Document) AddRevision(startRun, endRun *Run, newText string, opts ...Re
 			if ir.bold || ir.italic || ir.strike || ir.code {
 				r.RPr = &wml.CT_RPr{}
 				if ir.bold {
-					v := true
-					r.RPr.Bold = &v
+					r.RPr.Bold = new(true)
 				}
 				if ir.italic {
-					v := true
-					r.RPr.Italic = &v
+					r.RPr.Italic = new(true)
 				}
 				if ir.strike {
-					v := true
-					r.RPr.Strike = &v
+					r.RPr.Strike = new(true)
 				}
 				if ir.code {
-					fn := "Courier New"
-					r.RPr.FontName = &fn
+					r.RPr.FontName = new("Courier New")
 				}
 			}
 			insRuns = append(insRuns, r)
@@ -634,8 +647,21 @@ func (d *Document) OverrideRevision(rev *Revision, text string, opts ...Revision
 // contains the given substring.
 func (d *Document) RevisionsForText(text string) iter.Seq[*Revision] {
 	return func(yield func(*Revision) bool) {
-		for rev := range d.Revisions() {
-			if rev.typ == RevisionInsert && strings.Contains(rev.ProposedText(), text) {
+		d.mu.RLock()
+		defer d.mu.RUnlock()
+		for _, p := range d.collectAllParagraphs() {
+			for _, ic := range p.Content {
+				if ic.Ins == nil {
+					continue
+				}
+				var sb strings.Builder
+				for _, run := range ic.Ins.Runs {
+					sb.WriteString(run.Text())
+				}
+				if !strings.Contains(sb.String(), text) {
+					continue
+				}
+				rev := &Revision{doc: d, el: ic.Ins, typ: RevisionInsert, par: p}
 				if !yield(rev) {
 					return
 				}

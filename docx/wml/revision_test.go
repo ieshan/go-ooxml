@@ -24,12 +24,11 @@ func TestCT_RPrChange_Unmarshal(t *testing.T) {
 }
 
 func TestCT_RPrChange_RoundTrip(t *testing.T) {
-	bold := true
 	rpc := CT_RPrChange{
 		XMLName: xml.Name{Space: Ns, Local: "rPrChange"},
 		ID:      1,
 		Author:  "Test",
-		RPr:     &CT_RPr{Bold: &bold},
+		RPr:     &CT_RPr{Bold: new(true)},
 	}
 	data, err := xmlutil.Marshal(&rpc, xmlutil.OOXML)
 	if err != nil {
@@ -86,14 +85,12 @@ func TestCT_PPrChange_MultipleProperties(t *testing.T) {
 }
 
 func TestCT_PPrChange_RoundTrip(t *testing.T) {
-	style := "Normal"
-	align := "left"
 	ppc := CT_PPrChange{
 		XMLName: xml.Name{Space: Ns, Local: "pPrChange"},
 		ID:      3,
 		Author:  "Writer",
 		Date:    "2024-05-01T00:00:00Z",
-		PPr:     &CT_PPr{Style: &style, Alignment: &align},
+		PPr:     &CT_PPr{Style: new("Normal"), Alignment: new("left")},
 	}
 	data, err := xmlutil.Marshal(&ppc, xmlutil.OOXML)
 	if err != nil {
@@ -141,15 +138,12 @@ func TestCT_RPrChange_MultipleFmtFields(t *testing.T) {
 }
 
 func TestCT_RPrChange_RoundTrip_WithDate(t *testing.T) {
-	bold := true
-	italic := true
-	color := "0000FF"
 	rpc := CT_RPrChange{
 		XMLName: xml.Name{Space: Ns, Local: "rPrChange"},
 		ID:      99,
 		Author:  "Reviewer",
 		Date:    "2024-07-04T00:00:00Z",
-		RPr:     &CT_RPr{Bold: &bold, Italic: &italic, Color: &color},
+		RPr:     &CT_RPr{Bold: new(true), Italic: new(true), Color: new("0000FF")},
 	}
 	data, err := xmlutil.Marshal(&rpc, xmlutil.OOXML)
 	if err != nil {

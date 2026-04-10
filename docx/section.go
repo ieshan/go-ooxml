@@ -259,15 +259,11 @@ func (s *Section) SetColumns(cols *ColumnLayout) {
 
 	wmlCols := &wml.CT_Columns{}
 	if cols.Count > 0 {
-		n := cols.Count
-		wmlCols.Num = &n
+		wmlCols.Num = new(cols.Count)
 	}
-	spaceStr := strconv.FormatInt(cols.Space.Twips(), 10)
-	wmlCols.Space = &spaceStr
-	eq := cols.EqualWidth
-	wmlCols.EqualWidth = &eq
-	sep := cols.Separator
-	wmlCols.Sep = &sep
+	wmlCols.Space = new(strconv.FormatInt(cols.Space.Twips(), 10))
+	wmlCols.EqualWidth = new(cols.EqualWidth)
+	wmlCols.Sep = new(cols.Separator)
 
 	for _, cd := range cols.Cols {
 		wmlCols.Cols = append(wmlCols.Cols, &wml.CT_Column{

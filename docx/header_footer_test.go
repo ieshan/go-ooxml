@@ -98,9 +98,8 @@ func TestHeaderFooter_Markdown(t *testing.T) {
 	for section := range doc.Sections() {
 		hdr := section.AddHeader(HdrFtrDefault)
 		p := hdr.AddParagraph()
-		b := true
 		r := p.AddRun("Bold Header")
-		r.SetBold(&b)
+		r.SetBold(new(true))
 		md := hdr.Markdown()
 		if md != "**Bold Header**" {
 			t.Errorf("markdown = %q", md)

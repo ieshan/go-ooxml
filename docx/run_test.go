@@ -13,8 +13,7 @@ func TestRun_Bold(t *testing.T) {
 	if r.Bold() != nil {
 		t.Error("default should be nil (inherit)")
 	}
-	tr := true
-	r.SetBold(&tr)
+	r.SetBold(new(true))
 	if r.Bold() == nil || *r.Bold() != true {
 		t.Error("not bold")
 	}
@@ -28,8 +27,7 @@ func TestRun_Italic(t *testing.T) {
 	doc, _ := New(nil)
 	defer doc.Close()
 	r := doc.Body().AddParagraph().AddRun("test")
-	tr := true
-	r.SetItalic(&tr)
+	r.SetItalic(new(true))
 	if r.Italic() == nil || *r.Italic() != true {
 		t.Error("not italic")
 	}
@@ -91,13 +89,11 @@ func TestRun_Underline(t *testing.T) {
 	if r.Underline() != nil {
 		t.Error("default should be nil")
 	}
-	tr := true
-	r.SetUnderline(&tr)
+	r.SetUnderline(new(true))
 	if r.Underline() == nil || *r.Underline() != true {
 		t.Error("not underlined")
 	}
-	fa := false
-	r.SetUnderline(&fa)
+	r.SetUnderline(new(false))
 	if r.Underline() == nil || *r.Underline() != false {
 		t.Error("should be explicitly false")
 	}
@@ -114,8 +110,7 @@ func TestRun_Strikethrough(t *testing.T) {
 	if r.Strikethrough() != nil {
 		t.Error("default should be nil")
 	}
-	tr := true
-	r.SetStrikethrough(&tr)
+	r.SetStrikethrough(new(true))
 	if r.Strikethrough() == nil || *r.Strikethrough() != true {
 		t.Error("not strikethrough")
 	}
@@ -149,16 +144,14 @@ func ExampleRun_SetBold() {
 	doc, _ := New(nil)
 	defer doc.Close()
 	r := doc.Body().AddParagraph().AddRun("Important")
-	tr := true
-	r.SetBold(&tr)
+	r.SetBold(new(true))
 }
 
 func ExampleRun_Markdown() {
 	doc, _ := New(nil)
 	defer doc.Close()
 	r := doc.Body().AddParagraph().AddRun("bold text")
-	b := true
-	r.SetBold(&b)
+	r.SetBold(new(true))
 	_ = r.Markdown() // "**bold text**"
 }
 

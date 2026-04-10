@@ -27,27 +27,23 @@ func main() {
 
 	// Bold.
 	p := doc.Body().AddParagraph()
-	bold := true
 	r := p.AddRun("This is bold text.")
-	r.SetBold(&bold)
+	r.SetBold(new(true))
 
 	// Italic.
 	p2 := doc.Body().AddParagraph()
-	italic := true
 	r2 := p2.AddRun("This is italic text.")
-	r2.SetItalic(&italic)
+	r2.SetItalic(new(true))
 
 	// Underline.
 	p3 := doc.Body().AddParagraph()
-	underline := true
 	r3 := p3.AddRun("This is underlined text.")
-	r3.SetUnderline(&underline)
+	r3.SetUnderline(new(true))
 
 	// Strikethrough.
 	p4 := doc.Body().AddParagraph()
-	strike := true
 	r4 := p4.AddRun("This is strikethrough text.")
-	r4.SetStrikethrough(&strike)
+	r4.SetStrikethrough(new(true))
 
 	// Custom font and size.
 	p5 := doc.Body().AddParagraph()

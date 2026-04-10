@@ -35,12 +35,12 @@ var builtinRegistry = map[string]builtinStyleDef{
 	"Normal": {
 		id: "Normal", name: "Normal", styleType: "paragraph", isDefault: true,
 		outlineLvl: -1,
-		extra:      parseRawExtras(`<w:qFormat xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>`),
+		extra:      rawExtras(`<w:qFormat xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>`),
 	},
 	"DefaultParagraphFont": {
 		id: "DefaultParagraphFont", name: "Default Paragraph Font", styleType: "character", isDefault: true,
 		outlineLvl: -1,
-		extra: parseRawExtras(
+		extra: rawExtras(
 			`<w:uiPriority xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" w:val="1"/>`,
 			`<w:semiHidden xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>`,
 			`<w:unhideWhenUsed xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>`,
@@ -49,7 +49,7 @@ var builtinRegistry = map[string]builtinStyleDef{
 	"TableNormal": {
 		id: "TableNormal", name: "Normal Table", styleType: "table", isDefault: true,
 		outlineLvl: -1,
-		extra: parseRawExtras(
+		extra: rawExtras(
 			`<w:uiPriority xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" w:val="99"/>`,
 			`<w:semiHidden xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>`,
 			`<w:unhideWhenUsed xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>`,
@@ -59,7 +59,7 @@ var builtinRegistry = map[string]builtinStyleDef{
 	"NoList": {
 		id: "NoList", name: "No List", styleType: "numbering", isDefault: true,
 		outlineLvl: -1,
-		extra: parseRawExtras(
+		extra: rawExtras(
 			`<w:uiPriority xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" w:val="99"/>`,
 			`<w:semiHidden xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>`,
 			`<w:unhideWhenUsed xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>`,
@@ -75,7 +75,7 @@ var builtinRegistry = map[string]builtinStyleDef{
 		id: "Title", name: "Title", styleType: "paragraph", basedOn: "Normal", next: "Normal",
 		fontName: "Calibri Light", fontSize: "56", outlineLvl: -1,
 		spaceAfter: "0",
-		extra: parseRawExtras(
+		extra: rawExtras(
 			`<w:uiPriority xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" w:val="10"/>`,
 			`<w:qFormat xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>`,
 		),
@@ -83,7 +83,7 @@ var builtinRegistry = map[string]builtinStyleDef{
 	"Subtitle": {
 		id: "Subtitle", name: "Subtitle", styleType: "paragraph", basedOn: "Normal", next: "Normal",
 		color: "5A5A5A", outlineLvl: -1,
-		extra: parseRawExtras(
+		extra: rawExtras(
 			`<w:uiPriority xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" w:val="11"/>`,
 			`<w:qFormat xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>`,
 		),
@@ -91,7 +91,7 @@ var builtinRegistry = map[string]builtinStyleDef{
 	"ListParagraph": {
 		id: "ListParagraph", name: "List Paragraph", styleType: "paragraph", basedOn: "Normal",
 		indentLeft: "720", outlineLvl: -1,
-		extra: parseRawExtras(
+		extra: rawExtras(
 			`<w:uiPriority xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" w:val="34"/>`,
 			`<w:qFormat xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>`,
 		),
@@ -100,7 +100,7 @@ var builtinRegistry = map[string]builtinStyleDef{
 		id: "Quote", name: "Quote", styleType: "paragraph", basedOn: "Normal", next: "Normal",
 		italic: true, color: "404040", indentLeft: "720", indentRight: "720",
 		spaceBefore: "200", outlineLvl: -1,
-		extra: parseRawExtras(
+		extra: rawExtras(
 			`<w:uiPriority xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" w:val="29"/>`,
 			`<w:qFormat xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>`,
 		),
@@ -109,7 +109,7 @@ var builtinRegistry = map[string]builtinStyleDef{
 		id: "IntenseQuote", name: "Intense Quote", styleType: "paragraph", basedOn: "Normal", next: "Normal",
 		bold: true, color: "2F5496", indentLeft: "720", indentRight: "720",
 		spaceBefore: "200", outlineLvl: -1,
-		extra: parseRawExtras(
+		extra: rawExtras(
 			`<w:uiPriority xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" w:val="30"/>`,
 			`<w:qFormat xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>`,
 		),
@@ -117,7 +117,7 @@ var builtinRegistry = map[string]builtinStyleDef{
 	"NoSpacing": {
 		id: "NoSpacing", name: "No Spacing", styleType: "paragraph", basedOn: "Normal",
 		spaceAfter: "0", outlineLvl: -1,
-		extra: parseRawExtras(
+		extra: rawExtras(
 			`<w:uiPriority xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" w:val="1"/>`,
 			`<w:qFormat xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>`,
 		),
@@ -125,7 +125,7 @@ var builtinRegistry = map[string]builtinStyleDef{
 	"Strong": {
 		id: "Strong", name: "Strong", styleType: "character",
 		bold: true, outlineLvl: -1,
-		extra: parseRawExtras(
+		extra: rawExtras(
 			`<w:uiPriority xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" w:val="22"/>`,
 			`<w:qFormat xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>`,
 		),
@@ -133,7 +133,7 @@ var builtinRegistry = map[string]builtinStyleDef{
 	"Emphasis": {
 		id: "Emphasis", name: "Emphasis", styleType: "character",
 		italic: true, outlineLvl: -1,
-		extra: parseRawExtras(
+		extra: rawExtras(
 			`<w:uiPriority xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" w:val="20"/>`,
 			`<w:qFormat xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>`,
 		),
@@ -147,21 +147,19 @@ func headingDef(id, name, fontSize, color string, italic bool, spaceBefore strin
 		fontName: "Calibri Light", fontSize: fontSize, color: color,
 		italic: italic, keepNext: true, keepLines: true,
 		spaceBefore: spaceBefore, spaceAfter: "0", outlineLvl: outlineLvl,
-		extra: parseRawExtras(
+		extra: rawExtras(
 			`<w:uiPriority xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" w:val="9"/>`,
 			`<w:qFormat xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>`,
 		),
 	}
 }
 
-// parseRawExtras parses XML strings into RawXML values.
-func parseRawExtras(xmlStrs ...string) []xmlutil.RawXML {
-	var extras []xmlutil.RawXML
-	for _, s := range xmlStrs {
-		var raw xmlutil.RawXML
-		if err := xml.Unmarshal([]byte(s), &raw); err == nil {
-			extras = append(extras, raw)
-		}
+// rawExtras stores XML strings directly as RawXML byte slices, bypassing
+// xml.Unmarshal → xml.Encoder round-trip which corrupts namespace prefixes.
+func rawExtras(xmlStrs ...string) []xmlutil.RawXML {
+	extras := make([]xmlutil.RawXML, len(xmlStrs))
+	for i, s := range xmlStrs {
+		extras[i] = xmlutil.RawXML{Data: []byte(s)}
 	}
 	return extras
 }
@@ -176,8 +174,7 @@ func buildCTStyle(def builtinStyleDef) *wml.CT_Style {
 		Extra:   def.extra,
 	}
 	if def.isDefault {
-		v := true
-		s.Default = &v
+		s.Default = new(true)
 	}
 	if def.basedOn != "" {
 		s.BasedOn = &def.basedOn
@@ -192,12 +189,10 @@ func buildCTStyle(def builtinStyleDef) *wml.CT_Style {
 	if needsPPr {
 		ppr := &wml.CT_PPr{XMLName: xml.Name{Space: wml.Ns, Local: "pPr"}}
 		if def.keepNext {
-			v := true
-			ppr.KeepNext = &v
+			ppr.KeepNext = new(true)
 		}
 		if def.keepLines {
-			v := true
-			ppr.KeepLines = &v
+			ppr.KeepLines = new(true)
 		}
 		if def.spaceBefore != "" || def.spaceAfter != "" {
 			sp := &wml.CT_Spacing{}
@@ -243,12 +238,10 @@ func buildCTStyle(def builtinStyleDef) *wml.CT_Style {
 			rpr.Color = &def.color
 		}
 		if def.bold {
-			v := true
-			rpr.Bold = &v
+			rpr.Bold = new(true)
 		}
 		if def.italic {
-			v := true
-			rpr.Italic = &v
+			rpr.Italic = new(true)
 		}
 		s.RPr = rpr
 	}
@@ -269,15 +262,12 @@ func (d *Document) initDefaultStyles() {
 		XMLName: xml.Name{Space: wml.Ns, Local: "styles"},
 	}
 
-	// Parse and add docDefaults and latentStyles as Extra (raw XML).
-	var docDefaults xmlutil.RawXML
-	if err := xml.Unmarshal([]byte(docDefaultsXML), &docDefaults); err == nil {
-		d.styles.Extra = append(d.styles.Extra, docDefaults)
-	}
-	var latentStyles xmlutil.RawXML
-	if err := xml.Unmarshal([]byte(latentStylesXML), &latentStyles); err == nil {
-		d.styles.Extra = append(d.styles.Extra, latentStyles)
-	}
+	// Store docDefaults and latentStyles as raw bytes directly, bypassing
+	// xml.Unmarshal which corrupts namespace prefixes during round-trip.
+	d.styles.Extra = append(d.styles.Extra,
+		xmlutil.RawXML{Data: []byte(docDefaultsXML)},
+		xmlutil.RawXML{Data: []byte(latentStylesXML)},
+	)
 
 	// Add all built-in style definitions in a stable order.
 	order := []string{

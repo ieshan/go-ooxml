@@ -75,8 +75,7 @@ func TestDocument_Text_MultipleFormats(t *testing.T) {
 	p := doc.Body().AddParagraph()
 	p.AddRun("Hello ")
 	r := p.AddRun("World")
-	bold := true
-	r.SetBold(&bold)
+	r.SetBold(new(true))
 	// Bold formatting shouldn't affect plain text
 	if doc.Text(nil) != "Hello World" {
 		t.Errorf("text = %q", doc.Text(nil))
@@ -105,18 +104,6 @@ func TestDocument_Text_TableCellsOrdered(t *testing.T) {
 	row1Start := strings.Index(text, "R1C0")
 	if row0End == -1 || row1Start == -1 || row0End >= row1Start {
 		t.Errorf("unexpected ordering or missing rows in %q", text)
-	}
-}
-
-func TestDocument_Text_IncludeHeadersFooters_NoOp(t *testing.T) {
-	doc, _ := New(nil)
-	defer doc.Close()
-	doc.Body().AddParagraph().AddRun("body text")
-
-	// Headers/footers are not yet implemented — options are no-ops.
-	text := doc.Text(&TextOptions{IncludeHeaders: true, IncludeFooters: true})
-	if text != "body text" {
-		t.Errorf("text = %q, want %q", text, "body text")
 	}
 }
 

@@ -14,10 +14,10 @@ var wmlRunName = xml.Name{Space: wml.Ns, Local: "r"}
 
 // MarkdownOptions configures Document.Markdown() output.
 type MarkdownOptions struct {
-	IncludeHeaders  bool
-	IncludeFooters  bool
-	IncludeComments bool   // Render comments as footnotes
-	HorizontalRule  string // Default: "---"
+	// IncludeComments renders comments as Markdown footnotes after the body.
+	IncludeComments bool
+	// HorizontalRule sets the string used for thematic breaks. Default: "---".
+	HorizontalRule string
 }
 
 func (o *MarkdownOptions) hrule() string {
@@ -715,16 +715,13 @@ func applyInlineMarkdown(p *Paragraph, text string) error {
 		}
 		r := p.AddRun(run.text)
 		if run.bold {
-			v := true
-			r.SetBold(&v)
+			r.SetBold(new(true))
 		}
 		if run.italic {
-			v := true
-			r.SetItalic(&v)
+			r.SetItalic(new(true))
 		}
 		if run.strike {
-			v := true
-			r.SetStrikethrough(&v)
+			r.SetStrikethrough(new(true))
 		}
 		if run.code {
 			r.SetFontName("Courier New")
@@ -745,20 +742,16 @@ func applyInlineMarkdownWML(p *wml.CT_P, text string) {
 		if run.bold || run.italic || run.strike || run.code {
 			r.RPr = &wml.CT_RPr{}
 			if run.bold {
-				v := true
-				r.RPr.Bold = &v
+				r.RPr.Bold = new(true)
 			}
 			if run.italic {
-				v := true
-				r.RPr.Italic = &v
+				r.RPr.Italic = new(true)
 			}
 			if run.strike {
-				v := true
-				r.RPr.Strike = &v
+				r.RPr.Strike = new(true)
 			}
 			if run.code {
-				fn := "Courier New"
-				r.RPr.FontName = &fn
+				r.RPr.FontName = new("Courier New")
 			}
 		}
 		p.Content = append(p.Content, wml.InlineContent{Run: r})

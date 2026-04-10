@@ -20,12 +20,13 @@ func (sr *SearchResult) Text() string {
 	if len(sr.Runs) == 0 {
 		return ""
 	}
+	end := sr.End
 	if len(sr.Runs) == 1 {
 		t := sr.Runs[0].el.Text()
-		if sr.End > len(t) {
-			sr.End = len(t)
+		if end > len(t) {
+			end = len(t)
 		}
-		return t[sr.Start:sr.End]
+		return t[sr.Start:end]
 	}
 	var sb strings.Builder
 	for i, r := range sr.Runs {
@@ -34,10 +35,10 @@ func (sr *SearchResult) Text() string {
 		case i == 0:
 			sb.WriteString(t[sr.Start:])
 		case i == len(sr.Runs)-1:
-			if sr.End > len(t) {
-				sr.End = len(t)
+			if end > len(t) {
+				end = len(t)
 			}
-			sb.WriteString(t[:sr.End])
+			sb.WriteString(t[:end])
 		default:
 			sb.WriteString(t)
 		}
@@ -51,22 +52,23 @@ func (sr *SearchResult) Markdown() string {
 	if len(sr.Runs) == 0 {
 		return ""
 	}
+	end := sr.End
 	var sb strings.Builder
 	for i, r := range sr.Runs {
 		text := r.el.Text()
 		switch {
 		case i == 0 && i == len(sr.Runs)-1:
-			if sr.End > len(text) {
-				sr.End = len(text)
+			if end > len(text) {
+				end = len(text)
 			}
-			text = text[sr.Start:sr.End]
+			text = text[sr.Start:end]
 		case i == 0:
 			text = text[sr.Start:]
 		case i == len(sr.Runs)-1:
-			if sr.End > len(text) {
-				sr.End = len(text)
+			if end > len(text) {
+				end = len(text)
 			}
-			text = text[:sr.End]
+			text = text[:end]
 		}
 		if text == "" {
 			continue
@@ -415,20 +417,16 @@ func (q *SearchQuery) ReplaceMarkdown(md string) int {
 
 			// Additively apply markdown formatting.
 			if ir.bold {
-				v := true
-				rpr.Bold = &v
+				rpr.Bold = new(true)
 			}
 			if ir.italic {
-				v := true
-				rpr.Italic = &v
+				rpr.Italic = new(true)
 			}
 			if ir.strike {
-				v := true
-				rpr.Strike = &v
+				rpr.Strike = new(true)
 			}
 			if ir.code {
-				fn := "Courier New"
-				rpr.FontName = &fn
+				rpr.FontName = new("Courier New")
 			}
 
 			// Only set RPr if there's any formatting.
@@ -627,38 +625,31 @@ func mergedRunProperties(runs []*Run) *wml.CT_RPr {
 			continue
 		}
 		if rpr.Bold != nil && *rpr.Bold {
-			v := true
-			merged.Bold = &v
+			merged.Bold = new(true)
 			hasAny = true
 		}
 		if rpr.Italic != nil && *rpr.Italic {
-			v := true
-			merged.Italic = &v
+			merged.Italic = new(true)
 			hasAny = true
 		}
 		if rpr.Strike != nil && *rpr.Strike {
-			v := true
-			merged.Strike = &v
+			merged.Strike = new(true)
 			hasAny = true
 		}
 		if merged.Underline == nil && rpr.Underline != nil {
-			s := *rpr.Underline
-			merged.Underline = &s
+			merged.Underline = new(*rpr.Underline)
 			hasAny = true
 		}
 		if merged.FontName == nil && rpr.FontName != nil {
-			s := *rpr.FontName
-			merged.FontName = &s
+			merged.FontName = new(*rpr.FontName)
 			hasAny = true
 		}
 		if merged.FontSize == nil && rpr.FontSize != nil {
-			s := *rpr.FontSize
-			merged.FontSize = &s
+			merged.FontSize = new(*rpr.FontSize)
 			hasAny = true
 		}
 		if merged.Color == nil && rpr.Color != nil {
-			s := *rpr.Color
-			merged.Color = &s
+			merged.Color = new(*rpr.Color)
 			hasAny = true
 		}
 	}

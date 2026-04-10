@@ -89,8 +89,7 @@ func TestSearch_SetBold(t *testing.T) {
 	doc.Body().AddParagraph().AddRun("important")
 	doc.Body().AddParagraph().AddRun("important")
 
-	bold := true
-	count := doc.Search("important").SetBold(&bold)
+	count := doc.Search("important").SetBold(new(true))
 	if count != 2 {
 		t.Errorf("count = %d, want 2", count)
 	}
@@ -188,8 +187,7 @@ func TestSearch_SetItalic(t *testing.T) {
 	defer doc.Close()
 	doc.Body().AddParagraph().AddRun("important")
 
-	italic := true
-	count := doc.Search("important").SetItalic(&italic)
+	count := doc.Search("important").SetItalic(new(true))
 	if count != 1 {
 		t.Errorf("count = %d, want 1", count)
 	}
@@ -211,8 +209,7 @@ func ExampleDocument_Search() {
 	doc, _ := New(nil)
 	defer doc.Close()
 	doc.Body().AddParagraph().AddRun("Hello World")
-	bold := true
-	doc.Search("World").SetBold(&bold)
+	doc.Search("World").SetBold(new(true))
 }
 
 func ExampleDocument_Find() {
@@ -251,8 +248,7 @@ func ExampleSearchQuery_ReplaceTextFormatted() {
 	defer doc.Close()
 	p := doc.Body().AddParagraph()
 	r := p.AddRun("ACME Widget")
-	b := true
-	r.SetBold(&b)
+	r.SetBold(new(true))
 
 	// Replace text while preserving bold formatting.
 	doc.Search("ACME Widget").ReplaceTextFormatted("SuperWidget Pro")
@@ -264,8 +260,7 @@ func ExampleSearchQuery_ReplaceMarkdown() {
 	defer doc.Close()
 	p := doc.Body().AddParagraph()
 	r := p.AddRun("old product")
-	it := true
-	r.SetItalic(&it)
+	r.SetItalic(new(true))
 
 	// Replace with markdown — inherited italic + markdown bold.
 	doc.Search("old product").ReplaceMarkdown("**new** product")
@@ -311,8 +306,7 @@ func TestSearch_ReplaceMarkdown_BoldOnItalicBase(t *testing.T) {
 	defer doc.Close()
 	p := doc.Body().AddParagraph()
 	r := p.AddRun("old text")
-	it := true
-	r.SetItalic(&it)
+	r.SetItalic(new(true))
 
 	count := doc.Search("old text").ReplaceMarkdown("**strong** point")
 	if count != 1 {
@@ -401,8 +395,7 @@ func TestSearch_ReplaceMarkdown_PartialSingleRun(t *testing.T) {
 	defer doc.Close()
 	p := doc.Body().AddParagraph()
 	r := p.AddRun("prefix TARGET suffix")
-	b := true
-	r.SetBold(&b)
+	r.SetBold(new(true))
 
 	doc.Search("TARGET").ReplaceMarkdown("*new*")
 
@@ -434,8 +427,7 @@ func TestSearch_ReplaceTextFormatted_PreservesBold(t *testing.T) {
 	defer doc.Close()
 	p := doc.Body().AddParagraph()
 	r := p.AddRun("old text")
-	b := true
-	r.SetBold(&b)
+	r.SetBold(new(true))
 
 	count := doc.Search("old text").ReplaceTextFormatted("new text")
 	if count != 1 {
@@ -462,11 +454,9 @@ func TestSearch_ReplaceTextFormatted_UnionAcrossRuns(t *testing.T) {
 	defer doc.Close()
 	p := doc.Body().AddParagraph()
 	r1 := p.AddRun("bold ")
-	b := true
-	r1.SetBold(&b)
+	r1.SetBold(new(true))
 	r2 := p.AddRun("italic")
-	it := true
-	r2.SetItalic(&it)
+	r2.SetItalic(new(true))
 
 	count := doc.Search("bold italic").ReplaceTextFormatted("merged")
 	if count != 1 {
@@ -493,8 +483,7 @@ func TestSearch_ReplaceTextFormatted_SingleRunPartial(t *testing.T) {
 	defer doc.Close()
 	p := doc.Body().AddParagraph()
 	r := p.AddRun("Hello World Goodbye")
-	b := true
-	r.SetBold(&b)
+	r.SetBold(new(true))
 
 	doc.Search("World").ReplaceTextFormatted("Earth")
 	text := doc.Text(nil)
@@ -535,11 +524,9 @@ func TestMergedRunProperties_UnionBoldItalic(t *testing.T) {
 	defer doc.Close()
 	p := doc.Body().AddParagraph()
 	r1 := p.AddRun("bold ")
-	b := true
-	r1.SetBold(&b)
+	r1.SetBold(new(true))
 	r2 := p.AddRun("italic")
-	it := true
-	r2.SetItalic(&it)
+	r2.SetItalic(new(true))
 
 	results := doc.Find("bold italic")
 	if len(results) != 1 {
@@ -599,8 +586,7 @@ func TestSearchResult_Markdown_FormattedRuns(t *testing.T) {
 	defer doc.Close()
 	p := doc.Body().AddParagraph()
 	r := p.AddRun("bold text")
-	b := true
-	r.SetBold(&b)
+	r.SetBold(new(true))
 
 	results := doc.Find("bold text")
 	if len(results) != 1 {
@@ -618,8 +604,7 @@ func TestSearchResult_Markdown_MixedRuns(t *testing.T) {
 	p := doc.Body().AddParagraph()
 	p.AddRun("Hello ")
 	r := p.AddRun("World")
-	b := true
-	r.SetBold(&b)
+	r.SetBold(new(true))
 
 	results := doc.Find("Hello World")
 	if len(results) != 1 {

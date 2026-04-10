@@ -101,8 +101,7 @@ func (r *Run) Underline() *bool {
 	if r.el.RPr == nil || r.el.RPr.Underline == nil {
 		return nil
 	}
-	v := *r.el.RPr.Underline != "none"
-	return &v
+	return new(*r.el.RPr.Underline != "none")
 }
 
 // SetUnderline sets the underline state. nil clears, true sets "single", false sets "none".
@@ -117,11 +116,9 @@ func (r *Run) SetUnderline(v *bool) {
 	}
 	rpr := r.ensureRPr()
 	if *v {
-		s := "single"
-		rpr.Underline = &s
+		rpr.Underline = new("single")
 	} else {
-		s := "none"
-		rpr.Underline = &s
+		rpr.Underline = new("none")
 	}
 }
 
@@ -177,8 +174,7 @@ func (r *Run) FontSize() *float64 {
 	if err != nil {
 		return nil
 	}
-	pts := hp / 2
-	return &pts
+	return new(hp / 2)
 }
 
 // SetFontSize sets the font size in points.
@@ -186,8 +182,7 @@ func (r *Run) FontSize() *float64 {
 func (r *Run) SetFontSize(points float64) {
 	r.doc.mu.Lock()
 	defer r.doc.mu.Unlock()
-	hp := fmt.Sprintf("%g", points*2)
-	r.ensureRPr().FontSize = &hp
+	r.ensureRPr().FontSize = new(fmt.Sprintf("%g", points*2))
 }
 
 // FontColor returns the font color, or nil if not set.
@@ -208,8 +203,7 @@ func (r *Run) FontColor() *common.Color {
 func (r *Run) SetFontColor(c common.Color) {
 	r.doc.mu.Lock()
 	defer r.doc.mu.Unlock()
-	hex := c.Hex()
-	r.ensureRPr().Color = &hex
+	r.ensureRPr().Color = new(c.Hex())
 }
 
 // AddPageBreak appends a page break to the run.

@@ -73,8 +73,7 @@ func TestCT_R_Unmarshal_BoldItalic(t *testing.T) {
 func TestCT_R_Marshal_RoundTrip(t *testing.T) {
 	r := CT_R{XMLName: xml.Name{Space: Ns, Local: "r"}}
 	r.AddText("Hello World")
-	bold := true
-	r.RPr = &CT_RPr{Bold: &bold}
+	r.RPr = &CT_RPr{Bold: new(true)}
 
 	data, err := xmlutil.Marshal(&r, xmlutil.OOXML)
 	if err != nil {
@@ -170,9 +169,8 @@ func TestCT_R_Unmarshal_AnnotationRef(t *testing.T) {
 }
 
 func TestCT_R_Marshal_WithUnderline(t *testing.T) {
-	u := "single"
 	r := CT_R{XMLName: xml.Name{Space: Ns, Local: "r"}}
-	r.RPr = &CT_RPr{Underline: &u}
+	r.RPr = &CT_RPr{Underline: new("single")}
 	r.AddText("underlined")
 	data, err := xmlutil.Marshal(&r, xmlutil.OOXML)
 	if err != nil {
@@ -188,16 +186,12 @@ func TestCT_R_Marshal_WithUnderline(t *testing.T) {
 }
 
 func TestCT_R_Marshal_WithColorFontSizeFontNameStyle(t *testing.T) {
-	color := "FF0000"
-	fontSize := "28"
-	fontName := "Times New Roman"
-	runStyle := "Emphasis"
 	r := CT_R{XMLName: xml.Name{Space: Ns, Local: "r"}}
 	r.RPr = &CT_RPr{
-		Color:    &color,
-		FontSize: &fontSize,
-		FontName: &fontName,
-		RunStyle: &runStyle,
+		Color:    new("FF0000"),
+		FontSize: new("28"),
+		FontName: new("Times New Roman"),
+		RunStyle: new("Emphasis"),
 	}
 	r.AddText("styled run")
 	data, err := xmlutil.Marshal(&r, xmlutil.OOXML)
@@ -274,24 +268,16 @@ func TestCT_R_Marshal_DelText(t *testing.T) {
 }
 
 func TestCT_RPr_MultipleFmtCombined(t *testing.T) {
-	bold := true
-	italic := true
-	strike := true
-	underline := "double"
-	color := "00FF00"
-	fontSize := "32"
-	fontName := "Arial"
-	runStyle := "Strong"
 	r := CT_R{XMLName: xml.Name{Space: Ns, Local: "r"}}
 	r.RPr = &CT_RPr{
-		Bold:      &bold,
-		Italic:    &italic,
-		Strike:    &strike,
-		Underline: &underline,
-		Color:     &color,
-		FontSize:  &fontSize,
-		FontName:  &fontName,
-		RunStyle:  &runStyle,
+		Bold:      new(true),
+		Italic:    new(true),
+		Strike:    new(true),
+		Underline: new("double"),
+		Color:     new("00FF00"),
+		FontSize:  new("32"),
+		FontName:  new("Arial"),
+		RunStyle:  new("Strong"),
 	}
 	r.AddText("all formats")
 	data, err := xmlutil.Marshal(&r, xmlutil.OOXML)
@@ -440,9 +426,8 @@ func TestGetAttr_NoMatch(t *testing.T) {
 
 func TestCT_RPr_Marshal_OnlyColor(t *testing.T) {
 	// RPr with only color set — Bold/Italic/Strike are nil, exercises marshalBoolToggle(nil) path
-	color := "FF0000"
 	r := CT_R{XMLName: xml.Name{Space: Ns, Local: "r"}}
-	r.RPr = &CT_RPr{Color: &color}
+	r.RPr = &CT_RPr{Color: new("FF0000")}
 	r.AddText("colored text")
 	data, err := xmlutil.Marshal(&r, xmlutil.OOXML)
 	if err != nil {
@@ -536,10 +521,8 @@ func TestCT_R_AddText_LeadingTrailingSpace(t *testing.T) {
 }
 
 func TestCT_R_Marshal_StrikeBoldFalse(t *testing.T) {
-	boldFalse := false
-	strike := true
 	r := CT_R{XMLName: xml.Name{Space: Ns, Local: "r"}}
-	r.RPr = &CT_RPr{Bold: &boldFalse, Strike: &strike}
+	r.RPr = &CT_RPr{Bold: new(false), Strike: new(true)}
 	r.AddText("explicit false bold")
 	data, err := xmlutil.Marshal(&r, xmlutil.OOXML)
 	if err != nil {
@@ -613,9 +596,8 @@ func TestCT_RPr_RFonts_AllAttrs_RoundTrip(t *testing.T) {
 
 func TestCT_RPr_RFonts_AsciiOnly_AddsHAnsi(t *testing.T) {
 	// When only ascii is set, marshal should also emit hAnsi (same value).
-	fn := "Courier New"
 	r := CT_R{XMLName: xml.Name{Space: Ns, Local: "r"}}
-	r.RPr = &CT_RPr{FontName: &fn}
+	r.RPr = &CT_RPr{FontName: new("Courier New")}
 	r.AddText("code")
 	data, err := xmlutil.Marshal(&r, xmlutil.OOXML)
 	if err != nil {
@@ -680,23 +662,15 @@ func TestCT_RPr_Color_ThemeAttrs_RoundTrip(t *testing.T) {
 func TestCT_RPr_Marshal_ElementOrdering(t *testing.T) {
 	// Per ECMA-376, rStyle must be the first child of rPr.
 	// Full order: rStyle, rFonts, b, i, strike, u, color, sz
-	bold := true
-	italic := true
-	style := "Emphasis"
-	fn := "Arial"
-	color := "FF0000"
-	sz := "24"
-	u := "single"
-
 	r := CT_R{XMLName: xml.Name{Space: Ns, Local: "r"}}
 	r.RPr = &CT_RPr{
-		Bold:      &bold,
-		Italic:    &italic,
-		RunStyle:  &style,
-		FontName:  &fn,
-		Color:     &color,
-		FontSize:  &sz,
-		Underline: &u,
+		Bold:      new(true),
+		Italic:    new(true),
+		RunStyle:  new("Emphasis"),
+		FontName:  new("Arial"),
+		Color:     new("FF0000"),
+		FontSize:  new("24"),
+		Underline: new("single"),
 	}
 	r.AddText("test")
 

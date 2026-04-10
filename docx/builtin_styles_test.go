@@ -1,7 +1,10 @@
 package docx
 
 import (
+	"archive/zip"
 	"bytes"
+	"io"
+	"strings"
 	"testing"
 
 	"github.com/ieshan/go-ooxml/docx/wml"
@@ -285,5 +288,56 @@ func TestOpenExisting_PreservesStyles(t *testing.T) {
 
 	if countAfter != countBefore {
 		t.Errorf("style count changed: before=%d after=%d", countBefore, countAfter)
+	}
+}
+
+func TestStyles_XMLNamespaceIntegrity(t *testing.T) {
+	doc, _ := New(nil)
+	doc.Body().AddParagraph().SetStyle("Heading1")
+	doc.Body().AddParagraph().AddRun("text")
+
+	var buf bytes.Buffer
+	if err := doc.Write(&buf); err != nil {
+		t.Fatalf("Write: %v", err)
+	}
+	doc.Close()
+
+	// Extract word/styles.xml from the zip and inspect raw XML bytes.
+	r, err := zip.NewReader(bytes.NewReader(buf.Bytes()), int64(buf.Len()))
+	if err != nil {
+		t.Fatalf("zip.NewReader: %v", err)
+	}
+
+	var stylesXML string
+	for _, f := range r.File {
+		if f.Name == "word/styles.xml" {
+			rc, _ := f.Open()
+			data, _ := io.ReadAll(rc)
+			rc.Close()
+			stylesXML = string(data)
+			break
+		}
+	}
+	if stylesXML == "" {
+		t.Fatal("word/styles.xml not found in package")
+	}
+
+	// Must contain proper w: prefixed elements.
+	for _, want := range []string{"w:docDefaults", "w:rPrDefault", "w:latentStyles", "w:lsdException", "w:qFormat"} {
+		if !strings.Contains(stylesXML, want) {
+			t.Errorf("styles.xml missing %q", want)
+		}
+	}
+
+	// Must NOT contain namespace corruption signatures.
+	for _, bad := range []string{`xmlns="w"`, `_xmlns`, `xmlns:_xmlns`} {
+		if strings.Contains(stylesXML, bad) {
+			t.Errorf("styles.xml contains corrupted namespace: %q", bad)
+		}
+	}
+
+	// Must contain the proper OOXML namespace URI declaration.
+	if !strings.Contains(stylesXML, `xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"`) {
+		t.Error("styles.xml missing proper xmlns:w declaration")
 	}
 }

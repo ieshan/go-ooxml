@@ -124,8 +124,7 @@ func (d *Document) importPMNodeLocked(node PMNode) {
 			if p.PPr == nil {
 				p.PPr = &wml.CT_PPr{XMLName: xml.Name{Space: wml.Ns, Local: "pPr"}}
 			}
-			style := "Quote"
-			p.PPr.Style = &style
+			p.PPr.Style = new("Quote")
 			body.Content = append(body.Content, wml.BlockLevelContent{Paragraph: p})
 		}
 
@@ -135,8 +134,7 @@ func (d *Document) importPMNodeLocked(node PMNode) {
 				p := &wml.CT_P{XMLName: xml.Name{Space: wml.Ns, Local: "p"}}
 				r := &wml.CT_R{XMLName: xml.Name{Space: wml.Ns, Local: "r"}}
 				r.AddText(child.Text)
-				fn := "Courier New"
-				r.RPr = &wml.CT_RPr{FontName: &fn}
+				r.RPr = &wml.CT_RPr{FontName: new("Courier New")}
 				p.Content = append(p.Content, wml.InlineContent{Run: r})
 				body.Content = append(body.Content, wml.BlockLevelContent{Paragraph: p})
 			}
@@ -195,10 +193,9 @@ func importPMParagraph(d *Document, node PMNode) *wml.CT_P {
 		if level > 6 {
 			level = 6
 		}
-		style := "Heading" + strconv.Itoa(level)
 		p.PPr = &wml.CT_PPr{
 			XMLName: xml.Name{Space: wml.Ns, Local: "pPr"},
-			Style:   &style,
+			Style:   new("Heading" + strconv.Itoa(level)),
 		}
 	}
 
@@ -315,20 +312,15 @@ func applyPMMarksToRun(r *wml.CT_R, marks []PMMark) {
 		mt := normalizeTypeName(m.Type)
 		switch mt {
 		case "bold":
-			v := true
-			ensureRPr().Bold = &v
+			ensureRPr().Bold = new(true)
 		case "italic":
-			v := true
-			ensureRPr().Italic = &v
+			ensureRPr().Italic = new(true)
 		case "underline":
-			v := "single"
-			ensureRPr().Underline = &v
+			ensureRPr().Underline = new("single")
 		case "strike":
-			v := true
-			ensureRPr().Strike = &v
+			ensureRPr().Strike = new(true)
 		case "code":
-			fn := "Courier New"
-			ensureRPr().FontName = &fn
+			ensureRPr().FontName = new("Courier New")
 		case "superscript":
 			// Stored in Extra for now (vertAlign not in CT_RPr fields).
 		case "subscript":
@@ -339,12 +331,10 @@ func applyPMMarksToRun(r *wml.CT_R, marks []PMMark) {
 			}
 			rpr := ensureRPr()
 			if color, ok := m.Attrs["color"].(string); ok && color != "" {
-				c := trimColorHash(color)
-				rpr.Color = &c
+				rpr.Color = new(trimColorHash(color))
 			}
 			if fs, ok := m.Attrs["fontSize"].(string); ok && fs != "" {
-				hp := pmPtStringToHalfPoints(fs)
-				rpr.FontSize = &hp
+				rpr.FontSize = new(pmPtStringToHalfPoints(fs))
 			}
 			if ff, ok := m.Attrs["fontFamily"].(string); ok && ff != "" {
 				rpr.FontName = &ff

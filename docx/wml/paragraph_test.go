@@ -208,8 +208,7 @@ func TestCT_P_PreservesUnknown(t *testing.T) {
 
 func TestCT_P_Marshal_RoundTrip(t *testing.T) {
 	p := CT_P{XMLName: xml.Name{Space: Ns, Local: "p"}}
-	style := "Heading1"
-	p.PPr = &CT_PPr{Style: &style}
+	p.PPr = &CT_PPr{Style: new("Heading1")}
 	p.AddRun("Hello")
 	data, err := xmlutil.Marshal(&p, xmlutil.OOXML)
 	if err != nil {
@@ -394,11 +393,9 @@ func TestCT_NumPr_UnknownChild(t *testing.T) {
 }
 
 func TestCT_PPr_NumPr_RoundTrip(t *testing.T) {
-	ilvl := 1
-	numID := 3
 	p := CT_P{XMLName: xml.Name{Space: Ns, Local: "p"}}
 	p.PPr = &CT_PPr{
-		NumPr: &CT_NumPr{ILvl: &ilvl, NumID: &numID},
+		NumPr: &CT_NumPr{ILvl: new(1), NumID: new(3)},
 	}
 	p.AddRun("list item")
 
@@ -501,9 +498,8 @@ func TestCT_Hyperlink_AnchorRoundTrip(t *testing.T) {
 }
 
 func TestCT_PPr_Marshal_WithAlignment(t *testing.T) {
-	align := "right"
 	p := CT_P{XMLName: xml.Name{Space: Ns, Local: "p"}}
-	p.PPr = &CT_PPr{Alignment: &align}
+	p.PPr = &CT_PPr{Alignment: new("right")}
 	p.AddRun("right-aligned")
 	data, err := xmlutil.Marshal(&p, xmlutil.OOXML)
 	if err != nil {
@@ -629,23 +625,13 @@ func TestCT_RunTrackChange_Raw_RoundTrip(t *testing.T) {
 }
 
 func TestCT_PPr_SpacingAndIndent_RoundTrip(t *testing.T) {
-	before := "240"
-	after := "0"
-	line := "259"
-	lineRule := "auto"
-	left := "720"
-	right := "720"
-	outlineLvl := 0
-	keepNext := true
-	keepLines := true
-
 	ppr := CT_PPr{
 		XMLName:    xml.Name{Space: Ns, Local: "pPr"},
-		KeepNext:   &keepNext,
-		KeepLines:  &keepLines,
-		Spacing:    &CT_Spacing{Before: &before, After: &after, Line: &line, LineRule: &lineRule},
-		Ind:        &CT_Ind{Left: &left, Right: &right},
-		OutlineLvl: &outlineLvl,
+		KeepNext:   new(true),
+		KeepLines:  new(true),
+		Spacing:    &CT_Spacing{Before: new("240"), After: new("0"), Line: new("259"), LineRule: new("auto")},
+		Ind:        &CT_Ind{Left: new("720"), Right: new("720")},
+		OutlineLvl: new(0),
 	}
 
 	data, err := xmlutil.Marshal(&ppr, xmlutil.OOXML)

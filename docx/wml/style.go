@@ -88,8 +88,7 @@ func (s *CT_Style) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 		case "styleId":
 			s.StyleID = a.Value
 		case "default":
-			v := a.Value == "1" || a.Value == "true"
-			s.Default = &v
+			s.Default = new(a.Value == "1" || a.Value == "true")
 		}
 	}
 	// Parse children
@@ -107,14 +106,12 @@ func (s *CT_Style) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 					return err
 				}
 			case "basedOn":
-				v := getAttrVal(t.Attr)
-				s.BasedOn = &v
+				s.BasedOn = new(getAttrVal(t.Attr))
 				if err := d.Skip(); err != nil {
 					return err
 				}
 			case "next":
-				v := getAttrVal(t.Attr)
-				s.Next = &v
+				s.Next = new(getAttrVal(t.Attr))
 				if err := d.Skip(); err != nil {
 					return err
 				}

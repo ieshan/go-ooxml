@@ -26,12 +26,10 @@ func TestParagraph_ListInfo_WithNumPr(t *testing.T) {
 	p.AddRun("list item")
 
 	// Set up NumPr via internal field.
-	lvl := 0
-	numID := 3
 	p.el.PPr = &wml.CT_PPr{
 		NumPr: &wml.CT_NumPr{
-			ILvl:  &lvl,
-			NumID: &numID,
+			ILvl:  new(0),
+			NumID: new(3),
 		},
 	}
 
@@ -58,12 +56,10 @@ func TestParagraph_ListInfo_Level2(t *testing.T) {
 	defer doc.Close()
 	p := doc.Body().AddParagraph()
 
-	lvl := 2
-	numID := 1
 	p.el.PPr = &wml.CT_PPr{
 		NumPr: &wml.CT_NumPr{
-			ILvl:  &lvl,
-			NumID: &numID,
+			ILvl:  new(2),
+			NumID: new(1),
 		},
 	}
 
@@ -93,10 +89,9 @@ func TestParagraph_ListInfo_NilILvlDefaultsToZero(t *testing.T) {
 	defer doc.Close()
 	p := doc.Body().AddParagraph()
 
-	numID := 1
 	p.el.PPr = &wml.CT_PPr{
 		NumPr: &wml.CT_NumPr{
-			NumID: &numID,
+			NumID: new(1),
 			// ILvl intentionally nil
 		},
 	}

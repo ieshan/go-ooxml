@@ -19,30 +19,54 @@ type Style struct {
 
 // ID returns the style's unique identifier (e.g., "Heading1").
 func (s *Style) ID() string {
+	s.doc.mu.RLock()
+	defer s.doc.mu.RUnlock()
 	return s.el.StyleID
 }
 
 // Name returns the display name of the style (e.g., "heading 1").
 func (s *Style) Name() string {
+	s.doc.mu.RLock()
+	defer s.doc.mu.RUnlock()
 	return s.el.Name
 }
 
 // Type returns the style type: "paragraph", "character", "table", or "numbering".
 func (s *Style) Type() string {
+	s.doc.mu.RLock()
+	defer s.doc.mu.RUnlock()
 	return s.el.Type
 }
 
 // BasedOn returns the parent style ID, or "" if none.
 func (s *Style) BasedOn() string {
+	s.doc.mu.RLock()
+	defer s.doc.mu.RUnlock()
 	if s.el.BasedOn == nil {
 		return ""
 	}
 	return *s.el.BasedOn
 }
 
+// RPr returns the style's run properties, or nil if not set.
+func (s *Style) RPr() *wml.CT_RPr {
+	s.doc.mu.RLock()
+	defer s.doc.mu.RUnlock()
+	return s.el.RPr
+}
+
+// PPr returns the style's paragraph properties, or nil if not set.
+func (s *Style) PPr() *wml.CT_PPr {
+	s.doc.mu.RLock()
+	defer s.doc.mu.RUnlock()
+	return s.el.PPr
+}
+
 // IsHeading returns true if the style is a heading style (Heading1-Heading9 or Title).
 func (s *Style) IsHeading() bool {
-	return s.HeadingLevel() > 0
+	s.doc.mu.RLock()
+	defer s.doc.mu.RUnlock()
+	return s.headingLevel() > 0
 }
 
 // HeadingLevel returns 1-9 for Heading1-Heading9, 1 for the Title style,
@@ -50,6 +74,14 @@ func (s *Style) IsHeading() bool {
 // Detection is based on the style ID (e.g., "Heading1", "Title") or display
 // name (e.g., "heading 1", "title").
 func (s *Style) HeadingLevel() int {
+	s.doc.mu.RLock()
+	defer s.doc.mu.RUnlock()
+	return s.headingLevel()
+}
+
+// headingLevel is the lock-free implementation of HeadingLevel.
+// Caller must hold at least RLock.
+func (s *Style) headingLevel() int {
 	id := s.el.StyleID
 
 	// "Title" maps to level 1, consistent with Markdown rendering.
@@ -230,17 +262,15 @@ func (s *Style) SetFont(name string) {
 func (s *Style) SetFontSize(points float64) {
 	s.doc.mu.Lock()
 	defer s.doc.mu.Unlock()
-	halfPts := fmt.Sprintf("%g", points*2)
 	rpr := s.ensureRPr()
-	rpr.FontSize = &halfPts
+	rpr.FontSize = new(fmt.Sprintf("%g", points*2))
 }
 
 // SetColor sets the font color for text rendered with this style.
 func (s *Style) SetColor(c common.Color) {
 	s.doc.mu.Lock()
 	defer s.doc.mu.Unlock()
-	hex := c.Hex()
-	s.ensureRPr().Color = &hex
+	s.ensureRPr().Color = new(c.Hex())
 }
 
 // SetBold enables or disables bold formatting for this style's run properties.
@@ -274,8 +304,7 @@ func (s *Style) SetSpacingBefore(twips int) {
 	if ppr.Spacing == nil {
 		ppr.Spacing = &wml.CT_Spacing{}
 	}
-	v := strconv.Itoa(twips)
-	ppr.Spacing.Before = &v
+	ppr.Spacing.Before = new(strconv.Itoa(twips))
 }
 
 // SetSpacingAfter sets the spacing below a paragraph in twips (1/1440 inch).
@@ -286,8 +315,7 @@ func (s *Style) SetSpacingAfter(twips int) {
 	if ppr.Spacing == nil {
 		ppr.Spacing = &wml.CT_Spacing{}
 	}
-	v := strconv.Itoa(twips)
-	ppr.Spacing.After = &v
+	ppr.Spacing.After = new(strconv.Itoa(twips))
 }
 
 // SetLineSpacing sets the line spacing for paragraphs using this style.
@@ -300,8 +328,7 @@ func (s *Style) SetLineSpacing(val int, rule string) {
 	if ppr.Spacing == nil {
 		ppr.Spacing = &wml.CT_Spacing{}
 	}
-	v := strconv.Itoa(val)
-	ppr.Spacing.Line = &v
+	ppr.Spacing.Line = new(strconv.Itoa(val))
 	ppr.Spacing.LineRule = &rule
 }
 
@@ -338,8 +365,7 @@ func (s *Style) SetIndentLeft(twips int) {
 	if ppr.Ind == nil {
 		ppr.Ind = &wml.CT_Ind{}
 	}
-	v := strconv.Itoa(twips)
-	ppr.Ind.Left = &v
+	ppr.Ind.Left = new(strconv.Itoa(twips))
 }
 
 // SetIndentRight sets the right indentation for paragraphs in twips (1/1440 inch).
@@ -350,6 +376,5 @@ func (s *Style) SetIndentRight(twips int) {
 	if ppr.Ind == nil {
 		ppr.Ind = &wml.CT_Ind{}
 	}
-	v := strconv.Itoa(twips)
-	ppr.Ind.Right = &v
+	ppr.Ind.Right = new(strconv.Itoa(twips))
 }

@@ -105,8 +105,6 @@ func createDocWithStyles(t *testing.T) *Document {
 	// Inject styles directly into the document's styles field
 	normalName := "Normal"
 	h1Name := "heading 1"
-	basedOn := "Normal"
-	bold := true
 	doc.styles = &wml.CT_Styles{
 		XMLName: xml.Name{Space: wml.Ns, Local: "styles"},
 		Styles: []*wml.CT_Style{
@@ -117,8 +115,8 @@ func createDocWithStyles(t *testing.T) *Document {
 			{
 				XMLName: xml.Name{Space: wml.Ns, Local: "style"},
 				Type:    "paragraph", StyleID: "Heading1", Name: h1Name,
-				BasedOn: &basedOn,
-				RPr:     &wml.CT_RPr{Bold: &bold},
+				BasedOn: new("Normal"),
+				RPr:     &wml.CT_RPr{Bold: new(true)},
 			},
 		},
 	}
@@ -265,4 +263,25 @@ func ExampleStyle_SetLineSpacing() {
 	s.SetLineSpacing(480, "auto")
 	s.SetSpacingBefore(240)
 	s.SetSpacingAfter(240)
+}
+
+func ExampleStyle_SetFont() {
+	doc, _ := New(nil)
+	defer doc.Close()
+
+	s := doc.AddStyle("Monospaced", "paragraph")
+	s.SetFont("Courier New")
+	s.SetFontSize(10)
+	s.SetColor(common.RGB(80, 80, 80))
+}
+
+func ExampleStyle_SetIndentLeft() {
+	doc, _ := New(nil)
+	defer doc.Close()
+
+	s := doc.AddStyle("Indented", "paragraph")
+	s.SetIndentLeft(720)  // 0.5 inch
+	s.SetIndentRight(720) // 0.5 inch
+	s.SetSpacingBefore(120)
+	s.SetSpacingAfter(120)
 }

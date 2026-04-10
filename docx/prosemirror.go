@@ -5,7 +5,11 @@ import (
 	"strings"
 )
 
-// PMNode represents a ProseMirror document node.
+// PMNode represents a ProseMirror document node in the JSON tree structure.
+// Nodes can be blocks (paragraph, heading, table) or inline text nodes.
+// This is the standard ProseMirror/TipTap JSON format used by many rich-text
+// editors. Use [Document.ProseMirror] to export and [Document.FromProseMirror]
+// to import.
 type PMNode struct {
 	Type    string         `json:"type"`
 	Attrs   map[string]any `json:"attrs,omitempty"`
@@ -14,15 +18,16 @@ type PMNode struct {
 	Text    string         `json:"text,omitempty"`
 }
 
-// PMMark represents a ProseMirror mark (inline formatting).
+// PMMark represents an inline formatting mark applied to a ProseMirror text node.
+// Common marks include "bold", "italic", "code", "link", and "strike".
 type PMMark struct {
 	Type  string         `json:"type"`
 	Attrs map[string]any `json:"attrs,omitempty"`
 }
 
-// ProseMirrorOptions configures ProseMirror JSON export.
+// ProseMirrorOptions configures ProseMirror JSON export via [Document.ProseMirror].
 type ProseMirrorOptions struct {
-	// IncludeHeaders includes header/footer content in doc node attrs.
+	// IncludeHeaders includes header/footer content in the doc node's attrs.
 	IncludeHeaders bool
 	// UseTipTapNames uses TipTap naming convention (bold/italic/orderedList)
 	// instead of vanilla ProseMirror (strong/em/ordered_list). Default: true.

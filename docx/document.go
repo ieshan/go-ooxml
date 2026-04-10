@@ -45,7 +45,8 @@ type OpenMode int
 const (
 	// ModeInMemory loads the entire package into memory (default).
 	ModeInMemory OpenMode = iota
-	// ModeStreaming is reserved for future streaming support.
+	// ModeStreaming opens the package using streaming mode, reducing peak
+	// memory usage for large files.
 	ModeStreaming
 )
 

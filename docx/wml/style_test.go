@@ -52,11 +52,10 @@ func TestCT_Styles_Unmarshal(t *testing.T) {
 
 func TestCT_Styles_RoundTrip(t *testing.T) {
 	styles := CT_Styles{XMLName: xml.Name{Space: Ns, Local: "styles"}}
-	bold := true
 	s := &CT_Style{
 		XMLName: xml.Name{Space: Ns, Local: "style"},
 		Type:    "paragraph", StyleID: "Normal", Name: "Normal",
-		RPr: &CT_RPr{Bold: &bold},
+		RPr: &CT_RPr{Bold: new(true)},
 	}
 	styles.Styles = append(styles.Styles, s)
 	data, err := xmlutil.Marshal(&styles, xmlutil.OOXML)
@@ -344,13 +343,12 @@ func TestCT_Styles_MarshalXML_WithExtra(t *testing.T) {
 }
 
 func TestCT_Style_Next_RoundTrip(t *testing.T) {
-	next := "Normal"
 	style := CT_Style{
 		XMLName: xml.Name{Space: Ns, Local: "style"},
 		Type:    "paragraph",
 		StyleID: "Heading1",
 		Name:    "heading 1",
-		Next:    &next,
+		Next:    new("Normal"),
 	}
 
 	data, err := xmlutil.Marshal(&style, xmlutil.OOXML)

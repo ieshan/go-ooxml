@@ -185,8 +185,7 @@ func TestIntegration_ComplexDocument_RoundTrip(t *testing.T) {
 	p := doc.Body().AddParagraph()
 	p.AddRun("Revenue increased by ")
 	bold := doc.Body().AddParagraph().AddRun("42%")
-	b := true
-	bold.SetBold(&b)
+	bold.SetBold(new(true))
 
 	// Table
 	tbl := doc.Body().AddTable(2, 2)

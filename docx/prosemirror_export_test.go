@@ -92,8 +92,7 @@ func TestRunProseMirror_Underline(t *testing.T) {
 	doc, _ := New(nil)
 	defer doc.Close()
 	r := doc.Body().AddParagraph().AddRun("underlined")
-	u := true
-	r.SetUnderline(&u)
+	r.SetUnderline(new(true))
 	data, _ := r.ProseMirror()
 	var node PMNode
 	json.Unmarshal(data, &node)
@@ -109,8 +108,7 @@ func TestRunProseMirror_Strike(t *testing.T) {
 	doc, _ := New(nil)
 	defer doc.Close()
 	r := doc.Body().AddParagraph().AddRun("struck")
-	s := true
-	r.SetStrikethrough(&s)
+	r.SetStrikethrough(new(true))
 	data, _ := r.ProseMirror()
 	var node PMNode
 	json.Unmarshal(data, &node)
@@ -344,8 +342,7 @@ func TestSearchResultProseMirror(t *testing.T) {
 	defer doc.Close()
 	p := doc.Body().AddParagraph()
 	r := p.AddRun("bold text")
-	b := true
-	r.SetBold(&b)
+	r.SetBold(new(true))
 	results := doc.Find("bold text")
 	if len(results) == 0 {
 		t.Fatal("no results")
@@ -453,12 +450,10 @@ func TestProseMirror_RoundTrip_RichDocument(t *testing.T) {
 	h.AddRun("Title")
 	p := doc.Body().AddParagraph()
 	r := p.AddRun("Bold text")
-	b := true
-	r.SetBold(&b)
+	r.SetBold(new(true))
 	p.AddRun(" and ")
 	r2 := p.AddRun("italic")
-	it := true
-	r2.SetItalic(&it)
+	r2.SetItalic(new(true))
 	tbl := doc.Body().AddTable(1, 2)
 	tbl.Cell(0, 0).AddParagraph().AddRun("A")
 	tbl.Cell(0, 1).AddParagraph().AddRun("B")
@@ -515,8 +510,7 @@ func TestProseMirror_VanillaNames(t *testing.T) {
 	doc, _ := New(nil)
 	defer doc.Close()
 	r := doc.Body().AddParagraph().AddRun("test")
-	b := true
-	r.SetBold(&b)
+	r.SetBold(new(true))
 	data, _ := doc.ProseMirror(&ProseMirrorOptions{UseTipTapNames: false})
 	s := string(data)
 	if !strings.Contains(s, `"strong"`) {

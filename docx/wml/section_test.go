@@ -142,13 +142,10 @@ func TestCT_SectPr_Empty(t *testing.T) {
 }
 
 func TestCT_Columns_IndividualCols_RoundTrip(t *testing.T) {
-	num := 3
-	space := "360"
-	eq := false
 	cols := CT_Columns{
-		Num:        &num,
-		Space:      &space,
-		EqualWidth: &eq,
+		Num:        new(3),
+		Space:      new("360"),
+		EqualWidth: new(false),
 		Cols: []*CT_Column{
 			{W: "2000", Space: "360"},
 			{W: "3000", Space: "360"},
@@ -185,10 +182,9 @@ func TestCT_Columns_IndividualCols_RoundTrip(t *testing.T) {
 }
 
 func TestCT_SectPr_RoundTrip_WithType(t *testing.T) {
-	contType := "nextPage"
 	sp := CT_SectPr{
 		XMLName: xml.Name{Space: Ns, Local: "sectPr"},
-		Type:    &contType,
+		Type:    new("nextPage"),
 		PgSz:    &CT_PgSz{W: "15840", H: "12240", Orient: "landscape"},
 		PgMar:   &CT_PgMar{Top: "720", Bottom: "720", Left: "1440", Right: "1440"},
 	}
@@ -267,15 +263,11 @@ func TestCT_SectPr_MarshalXML_AllFields(t *testing.T) {
 
 func TestCT_Columns_Sep_True_Marshal(t *testing.T) {
 	// Test CT_Columns.MarshalXML with Sep=true and EqualWidth=true
-	num := 2
-	space := "720"
-	sep := true
-	eq := true
 	cols := CT_Columns{
-		Num:        &num,
-		Space:      &space,
-		Sep:        &sep,
-		EqualWidth: &eq,
+		Num:        new(2),
+		Space:      new("720"),
+		Sep:        new(true),
+		EqualWidth: new(true),
 	}
 	sp := CT_SectPr{
 		XMLName: xml.Name{Space: Ns, Local: "sectPr"},
@@ -347,9 +339,7 @@ func TestCT_SectPr_HdrFtrRef_RoundTrip(t *testing.T) {
 }
 
 func TestCT_Columns_Sep_False_RoundTrip(t *testing.T) {
-	sep := false
-	eq := true
-	cols := CT_Columns{Sep: &sep, EqualWidth: &eq}
+	cols := CT_Columns{Sep: new(false), EqualWidth: new(true)}
 	sp := CT_SectPr{
 		XMLName: xml.Name{Space: Ns, Local: "sectPr"},
 		Cols:    &cols,
@@ -381,12 +371,8 @@ func TestCT_SectPr_Marshal_NoCorruptedNamespaces(t *testing.T) {
 		PgSz:    &CT_PgSz{W: "12240", H: "15840", Orient: "landscape"},
 		PgMar:   &CT_PgMar{Top: "1440", Right: "1440", Bottom: "1440", Left: "1440"},
 	}
-	num := 2
-	space := "720"
-	eq := true
-	sep := false
 	sp.Cols = &CT_Columns{
-		Num: &num, Space: &space, EqualWidth: &eq, Sep: &sep,
+		Num: new(2), Space: new("720"), EqualWidth: new(true), Sep: new(false),
 		Cols: []*CT_Column{{W: "4320", Space: "720"}},
 	}
 

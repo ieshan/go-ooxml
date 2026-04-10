@@ -132,12 +132,10 @@ func TestCT_Tbl_WithTblPrStyleAndWidth(t *testing.T) {
 }
 
 func TestCT_TblPr_MarshalXML(t *testing.T) {
-	style := "TableGrid"
-	jc := "center"
 	pr := CT_TblPr{
-		Style: &style,
+		Style: new("TableGrid"),
 		Width: &CT_TblWidth{W: "5000", Type: "pct"},
-		Jc:    &jc,
+		Jc:    new("center"),
 	}
 	// Wrap in a table to exercise TblPr marshal round-trip
 	tbl := CT_Tbl{XMLName: xml.Name{Space: Ns, Local: "tbl"}, TblPr: &pr}
@@ -217,10 +215,9 @@ func TestCT_TcPr_Shading(t *testing.T) {
 }
 
 func TestCT_TcPr_MarshalXML(t *testing.T) {
-	gs := 2
 	pr := CT_TcPr{
 		Width:    &CT_TblWidth{W: "2000", Type: "dxa"},
-		GridSpan: &gs,
+		GridSpan: new(2),
 		VMerge:   &CT_VMerge{Val: "restart"},
 		Shading:  &CT_Shd{Val: "clear", Color: "auto", Fill: "FF0000"},
 	}
@@ -295,10 +292,9 @@ func TestCT_Tc_NestedTable(t *testing.T) {
 }
 
 func TestCT_Tbl_RoundTrip_WithTblPr(t *testing.T) {
-	style := "TableGrid"
 	tbl := CT_Tbl{XMLName: xml.Name{Space: Ns, Local: "tbl"}}
 	tbl.TblPr = &CT_TblPr{
-		Style: &style,
+		Style: new("TableGrid"),
 		Width: &CT_TblWidth{W: "5000", Type: "pct"},
 	}
 	tbl.TblGrid = &CT_TblGrid{

@@ -291,20 +291,17 @@ func (rpr *CT_RPr) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 		case xml.StartElement:
 			switch t.Name.Local {
 			case "b":
-				v := parseBoolVal(t.Attr)
-				rpr.Bold = &v
+				rpr.Bold = new(parseBoolVal(t.Attr))
 				if err := d.Skip(); err != nil {
 					return err
 				}
 			case "i":
-				v := parseBoolVal(t.Attr)
-				rpr.Italic = &v
+				rpr.Italic = new(parseBoolVal(t.Attr))
 				if err := d.Skip(); err != nil {
 					return err
 				}
 			case "strike":
-				v := parseBoolVal(t.Attr)
-				rpr.Strike = &v
+				rpr.Strike = new(parseBoolVal(t.Attr))
 				if err := d.Skip(); err != nil {
 					return err
 				}

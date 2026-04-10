@@ -100,8 +100,7 @@ func ExampleParagraph_AddRun() {
 	defer doc.Close()
 	p := doc.Body().AddParagraph()
 	r := p.AddRun("Hello ")
-	tr := true
-	r.SetBold(&tr)
+	r.SetBold(new(true))
 	p.AddRun("World")
 }
 
@@ -120,4 +119,24 @@ func ExampleParagraph_Format() {
 	p := doc.Body().AddParagraph()
 	p.AddRun("centered text")
 	p.Format().SetAlignment("center")
+}
+
+func ExampleParagraph_Text() {
+	doc, _ := New(nil)
+	defer doc.Close()
+	p := doc.Body().AddParagraph()
+	p.AddRun("Hello ")
+	p.AddRun("World")
+	_ = p.Text() // "Hello World"
+}
+
+func ExampleParagraph_Runs() {
+	doc, _ := New(nil)
+	defer doc.Close()
+	p := doc.Body().AddParagraph()
+	p.AddRun("Hello ")
+	p.AddRun("World")
+	for r := range p.Runs() {
+		_ = r.Text() // "Hello " then "World"
+	}
 }

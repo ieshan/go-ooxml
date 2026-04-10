@@ -19,16 +19,22 @@ type Comment struct {
 
 // ID returns the comment's unique identifier.
 func (c *Comment) ID() int {
+	c.doc.mu.RLock()
+	defer c.doc.mu.RUnlock()
 	return c.el.ID
 }
 
 // Author returns the comment author.
 func (c *Comment) Author() string {
+	c.doc.mu.RLock()
+	defer c.doc.mu.RUnlock()
 	return c.el.Author
 }
 
 // Date returns the comment date. Returns zero time if not set or unparseable.
 func (c *Comment) Date() time.Time {
+	c.doc.mu.RLock()
+	defer c.doc.mu.RUnlock()
 	if c.el.Date == "" {
 		return time.Time{}
 	}
@@ -41,6 +47,8 @@ func (c *Comment) Date() time.Time {
 
 // Initials returns the comment author's initials.
 func (c *Comment) Initials() string {
+	c.doc.mu.RLock()
+	defer c.doc.mu.RUnlock()
 	return c.el.Initials
 }
 
@@ -196,8 +204,7 @@ func (d *Document) AddComment(startRun, endRun *Run, text string, opts ...Commen
 	// Per ECMA-376 17.13.4.1, the first paragraph must contain an annotationRef run.
 	p := &wml.CT_P{XMLName: xml.Name{Space: wml.Ns, Local: "p"}}
 	annotRefRun := &wml.CT_R{XMLName: xml.Name{Space: wml.Ns, Local: "r"}}
-	commentRefStyle := "CommentReference"
-	annotRefRun.RPr = &wml.CT_RPr{RunStyle: &commentRefStyle}
+	annotRefRun.RPr = &wml.CT_RPr{RunStyle: new("CommentReference")}
 	annotRefRun.Content = append(annotRefRun.Content, wml.RunContent{AnnotationRef: &wml.CT_AnnotationRef{}})
 	p.Content = append(p.Content, wml.InlineContent{Run: annotRefRun})
 	if cfg.markdown {
@@ -365,8 +372,7 @@ func (d *Document) insertCommentMarkers(startRun, endRun *wml.CT_R, commentID in
 
 	// Build a comment reference run with CommentReference character style.
 	refRun := &wml.CT_R{XMLName: xml.Name{Space: wml.Ns, Local: "r"}}
-	crStyle := "CommentReference"
-	refRun.RPr = &wml.CT_RPr{RunStyle: &crStyle}
+	refRun.RPr = &wml.CT_RPr{RunStyle: new("CommentReference")}
 	refRun.Content = append(refRun.Content, wml.RunContent{
 		CommentReference: &wml.CT_CommentReference{ID: commentID},
 	})

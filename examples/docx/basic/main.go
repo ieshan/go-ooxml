@@ -27,13 +27,11 @@ func main() {
 	// Add a paragraph with mixed formatting.
 	p := doc.Body().AddParagraph()
 	p.AddRun("Revenue grew ")
-	bold := true
 	r := p.AddRun("15%")
-	r.SetBold(&bold)
+	r.SetBold(new(true))
 	p.AddRun(" year-over-year, driven by ")
-	italic := true
 	r2 := p.AddRun("new product launches")
-	r2.SetItalic(&italic)
+	r2.SetItalic(new(true))
 	p.AddRun(".")
 
 	// Add a subheading.

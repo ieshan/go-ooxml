@@ -114,8 +114,7 @@ func (sp *CT_SectPr) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error 
 				}
 				sp.FooterRefs = append(sp.FooterRefs, ref)
 			case "type":
-				v := getAttrVal(t.Attr)
-				sp.Type = &v
+				sp.Type = new(getAttrVal(t.Attr))
 				if err := d.Skip(); err != nil {
 					return err
 				}
@@ -192,14 +191,11 @@ func (c *CT_Columns) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error 
 			n, _ := strconv.Atoi(a.Value)
 			c.Num = &n
 		case "space":
-			v := a.Value
-			c.Space = &v
+			c.Space = new(a.Value)
 		case "equalWidth":
-			v := a.Value == "1" || a.Value == "true"
-			c.EqualWidth = &v
+			c.EqualWidth = new(a.Value == "1" || a.Value == "true")
 		case "sep":
-			v := a.Value == "1" || a.Value == "true"
-			c.Sep = &v
+			c.Sep = new(a.Value == "1" || a.Value == "true")
 		}
 	}
 	// Parse children

@@ -283,14 +283,12 @@ func (ppr *CT_PPr) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 					return err
 				}
 			case "keepNext":
-				v := true
-				ppr.KeepNext = &v
+				ppr.KeepNext = new(true)
 				if err := d.Skip(); err != nil {
 					return err
 				}
 			case "keepLines":
-				v := true
-				ppr.KeepLines = &v
+				ppr.KeepLines = new(true)
 				if err := d.Skip(); err != nil {
 					return err
 				}
@@ -299,17 +297,13 @@ func (ppr *CT_PPr) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 				for _, a := range t.Attr {
 					switch a.Name.Local {
 					case "before":
-						v := a.Value
-						ppr.Spacing.Before = &v
+						ppr.Spacing.Before = new(a.Value)
 					case "after":
-						v := a.Value
-						ppr.Spacing.After = &v
+						ppr.Spacing.After = new(a.Value)
 					case "line":
-						v := a.Value
-						ppr.Spacing.Line = &v
+						ppr.Spacing.Line = new(a.Value)
 					case "lineRule":
-						v := a.Value
-						ppr.Spacing.LineRule = &v
+						ppr.Spacing.LineRule = new(a.Value)
 					}
 				}
 				if err := d.Skip(); err != nil {
@@ -320,11 +314,9 @@ func (ppr *CT_PPr) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 				for _, a := range t.Attr {
 					switch a.Name.Local {
 					case "left":
-						v := a.Value
-						ppr.Ind.Left = &v
+						ppr.Ind.Left = new(a.Value)
 					case "right":
-						v := a.Value
-						ppr.Ind.Right = &v
+						ppr.Ind.Right = new(a.Value)
 					}
 				}
 				if err := d.Skip(); err != nil {
@@ -424,8 +416,7 @@ func (ppr *CT_PPr) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 		return err
 	}
 	if ppr.OutlineLvl != nil {
-		v := strconv.Itoa(*ppr.OutlineLvl)
-		if err := marshalValAttr(e, "outlineLvl", &v); err != nil {
+		if err := marshalValAttr(e, "outlineLvl", new(strconv.Itoa(*ppr.OutlineLvl))); err != nil {
 			return err
 		}
 	}

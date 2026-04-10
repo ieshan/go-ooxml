@@ -124,6 +124,36 @@ func TestSection_BreakType(t *testing.T) {
 	}
 }
 
+func ExampleSection_SetPageSize() {
+	doc, _ := New(nil)
+	defer doc.Close()
+	for s := range doc.Sections() {
+		// Set A4 page size (21cm x 29.7cm).
+		s.SetPageSize(common.Cm(21), common.Cm(29.7))
+	}
+}
+
+func ExampleSection_SetOrientation() {
+	doc, _ := New(nil)
+	defer doc.Close()
+	for s := range doc.Sections() {
+		s.SetOrientation(OrientLandscape)
+	}
+}
+
+func ExampleSection_SetMargins() {
+	doc, _ := New(nil)
+	defer doc.Close()
+	for s := range doc.Sections() {
+		s.SetMargins(SectionMargins{
+			Top:    common.Inches(1),
+			Bottom: common.Inches(1),
+			Left:   common.Inches(1.25),
+			Right:  common.Inches(1.25),
+		})
+	}
+}
+
 func ExampleSection_SetColumns() {
 	doc, _ := New(nil)
 	defer doc.Close()

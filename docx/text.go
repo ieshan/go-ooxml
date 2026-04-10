@@ -4,10 +4,6 @@ import "strings"
 
 // TextOptions controls what content is included in document-level text extraction.
 type TextOptions struct {
-	// IncludeHeaders includes header text before the body text.
-	IncludeHeaders bool
-	// IncludeFooters includes footer text after the body text.
-	IncludeFooters bool
 	// IncludeComments appends comment text after the body text.
 	IncludeComments bool
 }
