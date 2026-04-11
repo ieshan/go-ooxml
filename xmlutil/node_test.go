@@ -103,6 +103,41 @@ func ExampleRawXML() {
 	_ = string(out) // Contains both <title> and <custom>
 }
 
+func TestRawXML_NamespacePrefixPreservation(t *testing.T) {
+	// Simulate OOXML styles.xml: parent declares xmlns:w, children inherit it.
+	type container struct {
+		XMLName xml.Name `xml:"styles"`
+		Extra   []RawXML `xml:",any"`
+	}
+	input := `<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:sz w:val="22"/></w:rPr></w:rPrDefault></w:docDefaults></w:styles>`
+
+	var c container
+	if err := xml.Unmarshal([]byte(input), &c); err != nil {
+		t.Fatalf("Unmarshal: %v", err)
+	}
+	if len(c.Extra) != 1 {
+		t.Fatalf("Extra = %d, want 1", len(c.Extra))
+	}
+
+	data := string(c.Extra[0].Data)
+
+	// Must preserve w: prefixes on child elements.
+	if !strings.Contains(data, "w:rPrDefault") {
+		t.Errorf("missing w:rPrDefault in stored data: %s", data)
+	}
+	if !strings.Contains(data, "w:sz") {
+		t.Errorf("missing w:sz in stored data: %s", data)
+	}
+	// Must include a proper xmlns:w declaration (since the element inherits from parent).
+	if !strings.Contains(data, `xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"`) {
+		t.Errorf("missing xmlns:w declaration in stored data: %s", data)
+	}
+	// Must NOT have corrupted namespace forms.
+	if strings.Contains(data, `xmlns="w"`) || strings.Contains(data, `_xmlns`) {
+		t.Errorf("corrupted namespace in stored data: %s", data)
+	}
+}
+
 func containsAll(s string, substrs ...string) bool {
 	for _, sub := range substrs {
 		if !strings.Contains(s, sub) {

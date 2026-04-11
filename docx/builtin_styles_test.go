@@ -341,3 +341,53 @@ func TestStyles_XMLNamespaceIntegrity(t *testing.T) {
 		t.Error("styles.xml missing proper xmlns:w declaration")
 	}
 }
+
+func TestStyles_XMLNamespaceIntegrity_AfterRoundTrip(t *testing.T) {
+	// Create a fresh document, save, reopen, modify, save again.
+	// The re-saved document must still have valid namespaces.
+	doc, _ := New(nil)
+	doc.Body().AddParagraph().SetStyle("Heading1")
+	doc.Body().AddParagraph().AddRun("text")
+
+	var buf1 bytes.Buffer
+	doc.Write(&buf1)
+	doc.Close()
+
+	// Reopen and modify (triggers UnmarshalXML on styles.xml).
+	doc2, err := OpenReader(bytes.NewReader(buf1.Bytes()), int64(buf1.Len()), nil)
+	if err != nil {
+		t.Fatalf("OpenReader: %v", err)
+	}
+	doc2.Body().AddParagraph().SetStyle("Heading2")
+
+	var buf2 bytes.Buffer
+	doc2.Write(&buf2)
+	doc2.Close()
+
+	// Extract and inspect word/styles.xml from the re-saved document.
+	r, _ := zip.NewReader(bytes.NewReader(buf2.Bytes()), int64(buf2.Len()))
+	var stylesXML string
+	for _, f := range r.File {
+		if f.Name == "word/styles.xml" {
+			rc, _ := f.Open()
+			data, _ := io.ReadAll(rc)
+			rc.Close()
+			stylesXML = string(data)
+			break
+		}
+	}
+	if stylesXML == "" {
+		t.Fatal("word/styles.xml not found after round-trip")
+	}
+
+	for _, want := range []string{"w:docDefaults", "w:rPrDefault", "w:latentStyles", "w:lsdException"} {
+		if !strings.Contains(stylesXML, want) {
+			t.Errorf("re-saved styles.xml missing %q", want)
+		}
+	}
+	for _, bad := range []string{`xmlns="w"`, `_xmlns`, `xmlns:_xmlns`} {
+		if strings.Contains(stylesXML, bad) {
+			t.Errorf("re-saved styles.xml contains corrupted namespace: %q", bad)
+		}
+	}
+}
